@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #6c757d; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .comparison { background-color: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Subscription Upgraded</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{firstName}},</h2>
+            <p>Congratulations! You've successfully upgraded to {{newPlan}}.</p>
+            <div class="comparison">
+                <h3>What's Changed:</h3>
+                <ul>
+                    <li>Previous Plan: {{oldPlan}}</li>
+                    <li>New Plan: {{newPlan}}</li>
+                    <li>New Features: {{newFeatures}}</li>
+                    <li>New Price: €{{newPrice}}/month</li>
+                </ul>
+            </div>
+            <p>Your new features are available immediately.</p>
+        </div>
+    </div>
+</body>
+</html>

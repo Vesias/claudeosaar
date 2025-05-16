@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #ffc107; color: #333; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .info { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Subscription Cancelled</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{firstName}},</h2>
+            <p>We're sorry to see you go. Your ClaudeOSaar subscription has been cancelled.</p>
+            <div class="info">
+                <h3>Important Information:</h3>
+                <ul>
+                    <li>Access until: {{accessUntil}}</li>
+                    <li>Data retention: 30 days after cancellation</li>
+                    <li>You can reactivate anytime before {{accessUntil}}</li>
+                </ul>
+            </div>
+            <p>We'd love to hear your feedback. Please reply to this email to let us know how we can improve.</p>
+            <p>Thank you for being part of ClaudeOSaar.</p>
+        </div>
+    </div>
+</body>
+</html>

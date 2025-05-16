@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #dc3545; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        .alert { background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Payment Failed</h1>
+        </div>
+        <div class="content">
+            <h2>Hi {{firstName}},</h2>
+            <p>We were unable to process your payment for your ClaudeOSaar subscription.</p>
+            <div class="alert">
+                <p><strong>Important:</strong> Please update your payment method within {{gracePeriod}} days to avoid service interruption.</p>
+            </div>
+            <p>To update your payment method:</p>
+            <ol>
+                <li>Log in to your ClaudeOSaar account</li>
+                <li>Go to Billing Settings</li>
+                <li>Update your payment information</li>
+            </ol>
+            <p>If you need assistance, please contact support@claudeosaar.saarland</p>
+        </div>
+    </div>
+</body>
+</html>
