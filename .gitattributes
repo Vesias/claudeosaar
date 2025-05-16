@@ -1,0 +1,32 @@
+# Automatische Erkennung von Textdateien und Durchführung von LF-Normalisierung
+* text=auto eol=lf
+
+# Definiere binary-Dateien, die nicht geändert werden sollten
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+
+# Definiere Sprachen für verbesserte Syntax-Hervorhebung in GitHub
+*.js linguist-language=JavaScript
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.py linguist-language=Python
+*.md linguist-documentation
+
+# Verstecke bestimmte Dateien aus GitHub-Statistiken
+.gitattributes linguist-generated=true
+.gitignore linguist-generated=true
+package-lock.json linguist-generated=true
+yarn.lock linguist-generated=true
+
+# Proprietäre Hinweise - Diese Repository ist nicht Open Source
+LICENSE linguist-documentation=true
+README.md linguist-documentation=true
+WARNING.md linguist-documentation=true
+SECURITY.md linguist-documentation=true
