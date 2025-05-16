@@ -1,0 +1,285 @@
+version: '3.8'
+
+services:
+  # Core Claude Code Container
+  claude-code:
+    build:
+      context: ./claude-code
+      dockerfile: Dockerfile
+    container_name: claudeosaar_claude_code
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - MCP_CONFIG=/app/.claude/mcp-server/config.json
+      # Uncomment for Bedrock integration
+      # - CLAUDE_CODE_USE_BEDROCK=1
+      # - AWS_PROFILE=${AWS_PROFILE}
+      # - AWS_REGION=us-west-2
+    volumes:
+      - ./projects:/app
+      - ../.claude:/app/.claude
+      - ../ai_docs:/app/ai_docs
+      - claude-code-npm-cache:/home/claude/.npm-global
+    networks:
+      - claude-net
+    restart: unless-stopped
+    depends_on:
+      - mcp-gateway
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # MCP Gateway Server
+  mcp-gateway:
+    image: claudeosaar/mcp-gateway:latest
+    container_name: claudeosaar_mcp_gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - MCP_CONFIG=/config/mcp-server/config.json
+    volumes:
+      - ../.claude/mcp-server:/config/mcp-server
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Memory Bank Service
+  memory-bank:
+    image: claudeosaar/memory-bank:latest
+    container_name: claudeosaar_memory_bank
+    environment:
+      - MEMORY_PATH=/data/memory-bank
+    volumes:
+      - ../ai_docs/memory-bank:/data/memory-bank
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Vector Database (pgvector)
+  vector-db:
+    image: pgvector/pgvector:15-alpine
+    container_name: claudeosaar_vector_db
+    environment:
+      - POSTGRES_USER=vectoruser
+      - POSTGRES_PASSWORD=${VECTOR_DB_PASSWORD}
+      - POSTGRES_DB=claudeosaar_vectors
+    volumes:
+      - pgvector-data:/var/lib/postgresql/data
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Embedding Service
+  embedding-service:
+    image: claudeosaar/embedding-service:latest
+    container_name: claudeosaar_embeddings
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - HUGGINGFACE_TOKEN=${HF_TOKEN}
+      - REDIS_URL=redis://cache:6379
+    networks:
+      - claude-net
+    depends_on:
+      - cache
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # LLaMA Inference Server
+  llama-server:
+    image: claudeosaar/llama-server:latest
+    container_name: claudeosaar_llama
+    environment:
+      - MODEL_PATH=/models/llama-3.2-3b
+      - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      - llama-models:/models
+    networks:
+      - claude-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Advanced RAG System
+  rag-system:
+    image: claudeosaar/rag-system:latest
+    container_name: claudeosaar_rag
+    environment:
+      - VECTOR_DB_URL=postgresql://vectoruser:${VECTOR_DB_PASSWORD}@vector-db:5432/claudeosaar_vectors
+      - EMBEDDING_SERVICE_URL=http://embedding-service:8000
+      - LLAMA_SERVICE_URL=http://llama-server:8000
+    networks:
+      - claude-net
+    depends_on:
+      - vector-db
+      - embedding-service
+      - llama-server
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # A2A Coordinator
+  a2a-coordinator:
+    image: claudeosaar/a2a-coordinator:latest
+    container_name: claudeosaar_a2a
+    ports:
+      - "8080:8080"
+    environment:
+      - AGENT_DISCOVERY_URL=http://agent-registry:8000
+      - TASK_QUEUE_URL=redis://cache:6379
+    networks:
+      - claude-net
+    depends_on:
+      - cache
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Agent Registry
+  agent-registry:
+    image: claudeosaar/agent-registry:latest
+    container_name: claudeosaar_agent_registry
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Cache Service (Redis)
+  cache:
+    image: redis:7-alpine
+    container_name: claudeosaar_cache
+    command: >
+      redis-server --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy volatile-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis-data:/data
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ../src/ui
+      dockerfile: Dockerfile
+    container_name: claudeosaar_frontend
+    ports:
+      - "3001:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://api:8000
+      - NEXT_PUBLIC_WS_URL=ws://api:8000/ws
+    networks:
+      - claude-net
+    depends_on:
+      - api
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # FastAPI Backend
+  api:
+    build:
+      context: ../src/api
+      dockerfile: Dockerfile
+    container_name: claudeosaar_api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://apiuser:${API_DB_PASSWORD}@api-db:5432/claudeosaar
+      - REDIS_URL=redis://cache:6379
+      - MCP_GATEWAY_URL=http://mcp-gateway:3000
+      - JWT_SECRET=${JWT_SECRET}
+      - USE_SSL=true
+      - SSL_KEYFILE=/etc/ssl/private/claudeosaar.key
+      - SSL_CERTFILE=/etc/ssl/certs/claudeosaar.crt
+    volumes:
+      - ./ssl:/etc/ssl
+    networks:
+      - claude-net
+    depends_on:
+      - api-db
+      - cache
+      - mcp-gateway
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # API Database
+  api-db:
+    image: postgres:15-alpine
+    container_name: claudeosaar_api_db
+    environment:
+      - POSTGRES_USER=apiuser
+      - POSTGRES_PASSWORD=${API_DB_PASSWORD}
+      - POSTGRES_DB=claudeosaar
+    volumes:
+      - api-db-data:/var/lib/postgresql/data
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: claudeosaar_prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - claude-net
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: claudeosaar_grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - claude-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    security_opt:
+      - apparmor=claudeosaar-container-profile
+
+networks:
+  claude-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  claude-code-npm-cache:
+  pgvector-data:
+  llama-models:
+  redis-data:
+  api-db-data:
+  prometheus-data:
+  grafana-data:
