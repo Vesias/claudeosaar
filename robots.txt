@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# Dieser Code ist nicht zur allgemeinen Verwendung freigegeben
+# This code is not released for general use
