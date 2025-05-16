@@ -1,0 +1,39 @@
+name: Code Protection
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  protect:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup environment
+      run: |
+        mkdir -p logs
+        chmod +x ./add-watermark.sh
+    
+    - name: Add watermarks to code files
+      run: |
+        echo "Adding watermarks to code files..."
+        ./add-watermark.sh --ci
+      
+    - name: Commit watermarks
+      if: github.event_name == 'push'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git diff --quiet && git diff --staged --quiet || git commit -m "Added watermarks to code files [automated]"
+    
+    - name: Push changes
+      if: github.event_name == 'push'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
