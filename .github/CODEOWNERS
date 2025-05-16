@@ -1,0 +1,23 @@
+# ClaudeOSaar Repository CODEOWNERS
+# Format: pattern owner1 owner2
+
+# Default owners for everything in the repo
+*                   @Vesias
+
+# Core API files
+/src/api/           @Vesias
+
+# UI components and pages
+/src/ui/            @Vesias
+/src/components/    @Vesias
+/src/pages/         @Vesias
+
+# Container management
+/containers/        @Vesias
+
+# Infrastructure and deployment
+/infrastructure/    @Vesias
+/.github/workflows/ @Vesias
+
+# Security
+/containers/security/ @Vesias
