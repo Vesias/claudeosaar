@@ -1,0 +1,26 @@
+node_modules
+# Umgebungsvariablen und Geheimnisse
+.env
+.env.*
+!.env.example
+# Wasserzeichen-Logs
+.watermark_log_*
+# Temporäre Dateien
+*.tmp
+*.temp
+*.log
+# Build-Output
+dist/
+build/
+# Abhängigkeiten
+node_modules/
+__pycache__/
+*.pyc
+# IDE und Editor-Dateien
+.idea/
+.vscode/
+*.swp
+*.swo
+# Betriebssystem-Dateien
+.DS_Store
+Thumbs.db
