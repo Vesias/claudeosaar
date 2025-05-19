@@ -11,10 +11,15 @@ interface LogEntry {
   context?: any;
 }
 
-class Logger {
+export class Logger {
+  private moduleName: string;
   private isDevelopment = process.env.NODE_ENV === 'development';
   private logToConsole = true;
   private logToService = process.env.NODE_ENV === 'production';
+  
+  constructor(moduleName: string) {
+    this.moduleName = moduleName;
+  }
   
   private formatMessage(level: LogLevel, message: string, context?: any): LogEntry {
     return {
@@ -49,7 +54,7 @@ class Logger {
       const reset = '\x1b[0m';
       
       console[consoleMethod](
-        `${color}[${entry.timestamp}] [${level.toUpperCase()}]${reset} ${message}`,
+        `${color}[${entry.timestamp}] [${level.toUpperCase()}] [${this.moduleName}]${reset} ${message}`,
         context || ''
       );
     }
@@ -113,7 +118,7 @@ class Logger {
 }
 
 // Export singleton instance
-export const logger = new Logger();
+export const logger = new Logger('App');
 
 // React hook for component logging
 export const useLogger = (componentName: string) => {
