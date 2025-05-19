@@ -1,0 +1,50 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: claudeosaar-ingress
+  namespace: claudeosaar
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+spec:
+  tls:
+  - hosts:
+    - app.claudeosaar.saarland
+    - api.claudeosaar.saarland
+    - mcp.claudeosaar.saarland
+    secretName: claudeosaar-tls
+  rules:
+  - host: app.claudeosaar.saarland
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: claudeosaar-ui
+            port:
+              number: 6601
+  - host: api.claudeosaar.saarland
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: claudeosaar-api
+            port:
+              number: 6600
+  - host: mcp.claudeosaar.saarland
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: claudeosaar-mcp
+            port:
+              number: 6602

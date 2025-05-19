@@ -1,0 +1,18 @@
+apiVersion: v2
+name: claudeosaar
+description: A sovereign AI development workspace OS with Claude integration
+type: application
+version: 2.3.0
+appVersion: "2.3.0"
+keywords:
+  - ai
+  - claude
+  - development
+  - workspace
+  - container
+home: https://claudeosaar.saarland
+sources:
+  - https://github.com/claudeosaar/claudeosaar
+maintainers:
+  - name: ClaudeOSaar Team
+    email: support@claudeosaar.saarland

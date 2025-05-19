@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claudeosaar-ui
+  namespace: claudeosaar
+  labels:
+    app: claudeosaar-ui
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: claudeosaar-ui
+  template:
+    metadata:
+      labels:
+        app: claudeosaar-ui
+        tier: frontend
+    spec:
+      containers:
+      - name: ui
+        image: claudeosaar/ui:latest
+        ports:
+        - containerPort: 6601
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: NEXT_PUBLIC_API_URL
+          value: "https://api.claudeosaar.saarland"
+        - name: NEXT_PUBLIC_STRIPE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: claudeosaar-secrets
+              key: stripe-public-key
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 6601
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 6601
+          initialDelaySeconds: 5
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: claudeosaar-ui
+  namespace: claudeosaar
+spec:
+  selector:
+    app: claudeosaar-ui
+  ports:
+  - port: 6601
+    targetPort: 6601
+  type: ClusterIP

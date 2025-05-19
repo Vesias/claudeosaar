@@ -1,0 +1,168 @@
+# Default values for claudeosaar
+replicaCount:
+  api: 3
+  ui: 2
+  mcp: 2
+
+image:
+  repository: claudeosaar
+  pullPolicy: IfNotPresent
+  tag: "2.3.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  api:
+    port: 6600
+  ui:
+    port: 6601
+  mcp:
+    port: 6602
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+  hosts:
+    - host: api.claudeosaar.saarland
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+    - host: app.claudeosaar.saarland
+      paths:
+        - path: /
+          pathType: Prefix
+          service: ui
+    - host: mcp.claudeosaar.saarland
+      paths:
+        - path: /
+          pathType: Prefix
+          service: mcp
+  tls:
+    - secretName: claudeosaar-tls
+      hosts:
+        - api.claudeosaar.saarland
+        - app.claudeosaar.saarland
+        - mcp.claudeosaar.saarland
+
+resources:
+  api:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  ui:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 256Mi
+  mcp:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas:
+    api: 3
+    ui: 2
+    mcp: 2
+  maxReplicas:
+    api: 20
+    ui: 10
+    mcp: 15
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+postgresql:
+  enabled: true
+  auth:
+    username: claude
+    database: claudeosaar
+  persistence:
+    enabled: true
+    size: 100Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+  persistence:
+    enabled: true
+    size: 10Gi
+
+qdrant:
+  enabled: true
+  persistence:
+    size: 100Gi
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: 30d
+    storage: 50Gi
+  grafana:
+    enabled: true
+    adminPassword: changeme
+    storage: 10Gi
+
+# ClaudeOSaar specific configuration
+claudeosaar:
+  # API Keys (use secrets in production)
+  claudeApiKey: ""
+  stripeSecretKey: ""
+  stripePublicKey: ""
+  jwtSecret: ""
+  
+  # Subscription tiers
+  tiers:
+    free:
+      memory: "512m"
+      cpu: "0.5"
+      storage: "5Gi"
+    pro:
+      memory: "2Gi"
+      cpu: "2"
+      storage: "50Gi"
+    enterprise:
+      memory: "8Gi"
+      cpu: "4"
+      storage: "100Gi"
