@@ -1,0 +1,47 @@
+# .claudeignore
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Docker volumes
+volumes/
+user_mounts/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Security
+*.key
+*.pem
+*.cert
+
+# Database
+*.db
+*.sqlite
+*.sqlite3

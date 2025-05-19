@@ -1,76 +1,78 @@
 # ClaudeOSaar Roadmap
 
-## Current Development: v2.2.1-dev - "WebSockets Revolution"
-**Target Date**: June 1, 2025
+## Current Version: 2.1.0 → Planning 2.3.0
 
-### Features
-- **Real-time Collaboration** (high/XL)
-  WebSocket-based Live-Collaboration in Workspaces
-- **Agent-to-Agent Communication** (high/L)
-  A2A Protocol streaming over WebSockets
-- **Enhanced Security Layer** (critical/M)
-  TLS/SSL, HSTS headers, CORS/CSRF protections
-- **Container Security Profiles** (high/M)
-  AppArmor profiles for container isolation
-- **Real-time Metrics Dashboard** (medium/M)
-  Performance visualization with Recharts
-- **Terminal Access Improvements** (medium/M)
-  Enhanced terminal with search and themes
+### Version 2.3.0 (Current Sprint)
+**Focus**: Core MVP Implementation
 
-### Breaking Changes
-- WebSocket authentication requires JWT tokens
-- Terminal access API changes for WebSocket support
+#### Goals
+- [ ] Complete multi-tenant workspace system
+- [ ] Full MCP server integration
+- [ ] Web-based terminal access
+- [ ] Subscription billing via Stripe
+- [ ] Basic security implementation
 
----
+#### Features
+- Container-based workspace isolation
+- Claude API integration
+- Memory bank for context storage
+- AppArmor security profiles
+- JWT authentication
+- Resource limits per subscription tier
 
-## Completed Release: v2.2.0 - "Saarlouis"
-**Release Date**: May 15, 2025
+### Version 2.4.0 (Next Release)
+**Focus**: Enhanced Developer Experience
 
-### Completed Features
-- ✅ **Ende-zu-Ende Verschlüsselung** (critical/L)
-  Implementierte E2E encryption für alle User-Daten und API-Kommunikation
-- ✅ **Stripe Integration** (critical/L)
-  Vollständige Payment-Integration mit Stripe für EU-Zahlungen
-- ✅ **Workspace Isolation** (critical/L)
-  Vollständige Container-Isolation mit Network Policies
-- ✅ **DSGVO Compliance Dashboard** (high/M)
-  Vollständige DSGVO-Konformität mit User-Daten-Export und Löschung
-- ✅ **Usage-based Billing** (high/M)
-  Token-basierte Abrechnung mit Overage-Handling
-- ✅ **Resource Quotas** (high/M)
-  Tier-basierte Resource-Limits mit automatischem Enforcement
-- ✅ **Workspace Dashboard** (high/L)
-  React-basiertes Dashboard für Workspace-Management
-- ⏳ **Multi-Agent Workflows** (high/XL)
-  A2A Protocol Implementation für Agent-Orchestrierung (moved to v2.3.0)
-- ⏳ **Kubernetes Deployment** (high/XL)
-  Vollständige K8s-Migration mit Helm Charts (moved to v2.3.0)
-- 🔄 **Real-time Collaboration** (medium/XL)
-  WebSocket-basierte Live-Collaboration (in progress for v2.2.1)
+#### Planned Features
+- [ ] Visual Studio Code web integration
+- [ ] Git repository management UI
+- [ ] Enhanced terminal features
+- [ ] Real-time collaboration
+- [ ] Workspace templates
+- [ ] Advanced memory bank search
 
-### Breaking Changes
-- API authentication method changed to support E2E encryption
-- Container naming convention changed for multi-tenant support
+### Version 3.0.0 (Q2 2024)
+**Focus**: Enterprise Features
 
----
+#### Roadmap
+- [ ] SSO integration (SAML, OAuth)
+- [ ] Multi-agent orchestration
+- [ ] Custom plugin marketplace
+- [ ] Advanced monitoring & analytics
+- [ ] Kubernetes deployment option
+- [ ] Compliance certifications (SOC2, ISO 27001)
 
-## Next Major Release: v2.3.0 - "Enterprise"
-**Target Date**: September 1, 2025
+### Long-term Vision
 
-### Planned Features
-- **Multi-Agent Workflows** (high/XL)
-  A2A Protocol Implementation for Agent Orchestration
-- **Kubernetes Deployment** (high/XL)
-  Complete K8s Migration with Helm Charts
-- **Team Collaboration** (high/L)
-  Shared Workspaces with Role-Based Access
-- **Enterprise SSO** (high/L)
-  SAML/OIDC Integration for Enterprise Auth
-- **Audit Logging** (high/M)
-  Complete Audit Trail for Security Compliance
-- **Advanced Analytics** (medium/L)
-  Usage Patterns and Optimization Insights
+1. **AI-First Development Platform**
+   - Seamless Claude integration
+   - Context-aware development assistance
+   - Automated code generation
+   - Intelligent debugging
 
----
+2. **Sovereign Infrastructure**
+   - On-premises deployment options
+   - Data sovereignty guarantees
+   - European data centers
+   - GDPR compliance
 
-Generated on: 16.05.2025
+3. **Ecosystem Growth**
+   - Developer marketplace
+   - Partner integrations
+   - Community templates
+   - Educational resources
+
+### Technical Debt to Address
+- Implement comprehensive testing suite
+- Add database migration system
+- Set up monitoring with Grafana
+- Implement proper logging
+- Add WebSocket support
+- Performance optimization
+- Security hardening
+
+### Research Areas
+- Edge deployment capabilities
+- Federated learning integration
+- Quantum computing readiness
+- Advanced AI model integration

@@ -2,124 +2,38 @@
 
 profile claudeosaar-container-profile flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
-  #include <abstractions/nameservice>
   
-  # General file access
-  deny @{PROC}/* w,            # Deny write access to proc
-  deny @{PROC}/{[^1-9],[^1-9][^0-9],[^1-9s][^0-9y][^0-9s],[^1-9][^0-9][^0-9][^0-9]*}/** w,
-  deny @{PROC}/sys/kernel/** w,  # Deny write to kernel proc
-  deny @{PROC}/sysrq-trigger rwklx,
-  deny @{PROC}/mem rwklx,
-  deny @{PROC}/kmem rwklx,
-  deny @{PROC}/kcore rwklx,
-  deny @{PROC}/sys/kernel/[^s][^h][^m]* rwklx,
-  deny @{PROC}/sys/kernel/shm* rwklx,
-  deny @{PROC}/sys/kernel/*/** rwklx,
-  deny @{PROC}/sys/fs/** rwklx,
-  deny @{PROC}/fs/** rwklx,
-  deny /sys/[^f]*/** wklx,
-  deny /sys/f[^s]*/** wklx,
-  deny /sys/fs/[^c]*/** wklx,
-  deny /sys/fs/c[^g]*/** wklx,
-  deny /sys/fs/cg[^r]*/** wklx,
-  deny /sys/firmware/** rwklx,
-  deny /sys/kernel/security/** rwklx,
+  # Allow network access
+  network inet tcp,
+  network inet udp,
+  network inet6 tcp,
+  network inet6 udp,
   
-  # Allow limited read access to the filesystem
-  /usr/local/bin/ r,
-  /usr/local/bin/** mr,
-  /bin/ r,
-  /bin/** mr,
-  /usr/bin/ r,
-  /usr/bin/** mr,
-  /sbin/ r,
-  /sbin/** mr,
-  /usr/sbin/ r,
-  /usr/sbin/** mr,
-  /usr/local/lib/ r,
-  /usr/local/lib/** mr,
-  /lib/ r,
-  /lib/** mr,
-  /usr/lib/ r,
-  /usr/lib/** mr,
-  /etc/ r,
-  /etc/** r,
+  # Allow reading from package managers
+  /usr/bin/apt-get ix,
+  /usr/bin/dpkg ix,
+  /usr/bin/npm ix,
+  /usr/bin/node ix,
   
-  # Protect Docker socket
-  deny /var/run/docker.sock rwklx,
-  deny /run/docker.sock rwklx,
+  # Allow access to workspace directory
+  /workspace/** rw,
+  /user_mounts/** rw,
   
-  # Container read-write paths
-  /app/ r,
-  /app/** rw,
-  /data/ r,
-  /data/** rw,
-  /config/ r,
-  /config/** r,
-  /models/ r,
-  /models/** r,
-  /var/lib/postgresql/data/ r,
-  /var/lib/postgresql/data/** rwk,
-  /home/claude/.npm-global/ r,
-  /home/claude/.npm-global/** rwk,
-  /etc/ssl/ r,
-  /etc/ssl/** r,
+  # Allow access to temp directories
+  /tmp/** rw,
+  /var/tmp/** rw,
   
-  # Network access
-  network inet stream,
-  network inet dgram,
-  network inet6 stream,
-  network inet6 dgram,
-  network unix stream,
+  # Deny access to sensitive host files
+  deny /etc/passwd r,
+  deny /etc/shadow r,
+  deny /home/** r,
+  deny /root/** r,
   
-  # Process control
-  capability net_bind_service,
-  capability setgid,
-  capability setuid,
-  capability dac_override,
+  # Allow Claude API access
+  owner /home/user/.claude/** rw,
   
-  # Required for running node, python, etc.
-  /usr/bin/node mr,
-  /usr/bin/python* mr,
-  /usr/local/bin/python* mr,
-  /usr/local/bin/uvicorn mr,
-  /usr/bin/bash mr,
-  /bin/bash mr,
-  /bin/sh mr,
-  
-  # File operations
-  deny @{HOME}/.ssh/** rwklx,
-  deny /root/.ssh/** rwklx,
-  
-  # Terminal
-  /dev/ptmx rw,
-  /dev/pts/ptmx rw,
-  /dev/pts/* rw,
-  /dev/tty rw,
-  
-  # Prometheus metrics
-  /metrics r,
-  
-  # Audit and compliance
-  deny /var/log/** w,
-  
-  # GPU access for LLama
-  /dev/nvidia* rw,
-  /usr/bin/nvidia-smi mr,
-  
-  # Redis files
-  /data/appendonly.aof rw,
-  /data/dump.rdb rw,
-  
-  # Prevent privilege escalation
-  deny capability sys_admin,
-  deny capability sys_module,
-  deny capability sys_ptrace,
-  deny capability sys_boot,
-  deny capability sys_chroot,
-  
-  # Limit mount operations
-  deny mount,
-  deny umount,
-  deny remount,
+  # Docker specific
+  /proc/sys/kernel/random/uuid r,
+  /proc/sys/kernel/random/boot_id r,
+  /sys/fs/cgroup/** r,
 }

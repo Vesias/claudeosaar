@@ -74,12 +74,27 @@ if [ ! -f "$PROJECT_ROOT/.claude/mcp-server/config.json" ]; then
 EOF
 fi
 
+# Install dependencies if needed
+if [ ! -d "$PROJECT_ROOT/.claude/mcp-server/node_modules" ]; then
+  echo -e "${YELLOW}Installing MCP server dependencies...${NC}"
+  cd "$PROJECT_ROOT/.claude/mcp-server"
+  npm install
+  cd "$PROJECT_ROOT"
+fi
+
+if [ ! -d "$PROJECT_ROOT/.claude/mcp-server/mock-server/node_modules" ]; then
+  echo -e "${YELLOW}Installing mock server dependencies...${NC}"
+  cd "$PROJECT_ROOT/.claude/mcp-server/mock-server"
+  npm install express
+  cd "$PROJECT_ROOT"
+fi
+
 # Start the MCP Server
 echo -e "${GREEN}Starting MCP Server...${NC}"
 cd "$PROJECT_ROOT"
 
 # Use our local mock server instead of npm package
-node "$PROJECT_ROOT/.claude/mcp-server/mock-server/server.js" "$PROJECT_ROOT/.claude/mcp-server/config.json" &
+MCP_SERVER_PORT=${PORT} node "$PROJECT_ROOT/.claude/mcp-server/mock-server/server.js" &
 
 MCP_PID=$!
 

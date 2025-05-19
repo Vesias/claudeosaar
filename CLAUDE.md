@@ -8,7 +8,7 @@ ClaudeOSaar is a sovereign AI development workspace OS that provides containeriz
 
 ### High-Level Architecture
 
-1. **Frontend Layer**: Next.js 15 with App Router, React 19, Tailwind CSS 4
+1. **Frontend Layer**: Next.js 15 with Pages Router, React 19, Tailwind CSS 4
 2. **API Layer**: Dual backend with Node.js (TypeScript) and Python (FastAPI)  
 3. **Container Layer**: Docker-based workspace isolation with AppArmor security
 4. **AI Integration**: MCP Server protocol for Claude integration
@@ -47,7 +47,7 @@ npm run dev:ui
 # Start all services concurrently
 npm run dev:all
 
-# Start MCP server separately
+# Start MCP server separately (uses mock server at .claude/mcp-server/mock-server/server.js)
 npm run dev:mcp
 ```
 
@@ -59,7 +59,7 @@ npm run build
 # Build Next.js UI
 npm run build:ui
 
-# Run tests
+# Run tests with Jest
 npm test
 
 # Lint TypeScript/React code
@@ -74,14 +74,14 @@ npm run typecheck
 # Build Docker containers
 npm run docker:build
 
-# Start containers
+# Start containers (uses containers/docker-compose.yaml)
 npm run docker:up
 
 # Stop containers
 npm run docker:down
 
-# Start containers with script (includes checks)
-./start-containers.sh
+# Start all services with environment checks
+./start.sh
 
 # Start individual workspace container
 .claude/scripts/start-container.sh <user_id> <workspace_id> <api_key> <tier>
@@ -98,21 +98,31 @@ npm run cli
 
 ## Development Workflows
 
-### Running Tests
+### Local Development Setup
+1. Copy `.env.example` to `.env` and fill in required values (API keys, database passwords)
+2. Install dependencies: `npm install`
+3. Start databases: `docker-compose -f containers/docker-compose.yaml up api-db cache vector-db`
+4. Run migrations: `npm run migrate` (when available)
+5. Start development servers: `npm run dev:all`
+
+### Testing Workflow
 - Jest is configured for unit testing
 - Run all tests: `npm test`
 - Run tests in watch mode: `npm test -- --watch`
 - Run tests for a specific file: `npm test -- --testPathPattern="filename"`
+- Integration tests require running databases
 
 ### Working with the MCP Server
 1. The MCP server runs on port 6602 by default
 2. Configuration is in `.claude/mcp-server/config.json`
 3. Start with `./dev-mcp.sh` or `npm run dev:mcp`
+4. Uses mock server implementation in development
 
 ### Managing User Workspaces
 1. Workspaces are created with: `.claude/scripts/start-container.sh`
 2. Each workspace gets isolated storage at `/user_mounts/{user_id}/{workspace_id}`
 3. Resource limits are applied based on subscription tier
+4. Containers use AppArmor security profiles for isolation
 
 ## Key Project Components
 
@@ -160,3 +170,47 @@ Access patterns:
 - Store: `POST /api/memory-bank/store`
 - Retrieve: `GET /api/memory-bank/retrieve`
 - Search: `GET /api/memory-bank/search`
+
+## Environment Configuration
+
+Key environment variables (see `.env.example` for complete list):
+- `ANTHROPIC_API_KEY`: Claude API key for AI integration
+- `DATABASE_URL`: PostgreSQL connection string
+- `REDIS_URL`: Redis connection for caching and sessions
+- `JWT_SECRET`: Secret for JWT token signing
+- `MCP_SERVER_PORT`: MCP server port (default: 6602)
+- `STRIPE_SECRET_KEY`: Stripe API key for billing
+
+Default ports:
+- API Server: http://localhost:6600
+- Frontend UI: http://localhost:6601
+- MCP Server: http://localhost:6602
+- Grafana: http://localhost:6603 (Docker)
+- A2A Coordinator: http://localhost:6604 (Docker)
+
+## Development Guidelines
+
+### Code Organization
+- Use TypeScript for type safety
+- Follow the existing file structure patterns
+- Components go in `src/components/` for frontend
+- API routes in `src/api/` for backend
+- Container management code in `src/containers/`
+
+### Working with Docker Containers
+- Each user workspace gets its own container
+- Containers are networked via `claude-net` bridge network
+- Resource limits are enforced via Docker's `--memory`, `--cpus` flags
+- AppArmor profiles in `containers/security/apparmor/`
+
+### Authentication Flow
+1. Users authenticate via JWT tokens
+2. Tokens are stored in HTTP-only cookies
+3. WebSocket connections use token-based auth
+4. Each workspace has isolated API key storage
+
+### Plugin Development
+1. Create plugin in `.claude/plugins/` directory
+2. Follow BasePlugin interface from `src/plugins/base.ts`
+3. Register plugin in configuration
+4. Implement lifecycle methods: `initialize()`, `cleanup()`

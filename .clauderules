@@ -1,0 +1,34 @@
+# .clauderules
+
+## Project Standards
+
+### Prompt Standards
+- Always include workspace context in prompts
+- Reference memory bank for historical context  
+- Use structured output formats (JSON, YAML)
+- Include error handling in all code generation
+
+### Code Standards
+- TypeScript for all new code
+- Follow ESLint configuration
+- Write tests for new features
+- Document API endpoints with OpenAPI
+
+### Security Rules
+- Never expose API keys in code
+- Validate all user inputs
+- Use parameterized queries
+- Implement rate limiting
+
+### Container Rules
+- Always use least-privilege principles
+- Mount only necessary volumes
+- Set resource limits
+- Use AppArmor profiles
+
+### Development Workflow
+1. Branch from main
+2. Test in local containers
+3. Run security scan
+4. Submit PR with tests
+5. Deploy to staging first

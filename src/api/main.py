@@ -1,175 +1,203 @@
-#!/usr/bin/env python3
-"""
-ClaudeOSaar FastAPI Server
-Main entry point for the API backend
-"""
-
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-import uvicorn
 import os
-import logging
-from datetime import datetime
+import uuid
+from datetime import datetime, timedelta
+from typing import Optional
 
-# Import routers
-from .routes import auth, users, workspaces, billing, admin, health, websocket
-from .middleware.auth import AuthMiddleware
-from .middleware.rate_limit import RateLimitMiddleware
-from .middleware.security import SecurityHeadersMiddleware, CSRFMiddleware
-from .core.config import Settings
-from .core.database import init_db, close_db
-from .core.redis import init_redis, close_redis
+import docker
+import jwt
+import stripe
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+app = FastAPI(title="ClaudeOSaar API")
 
-# Load settings
-settings = Settings()
-
-# Create FastAPI app with lifespan events
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Handle startup and shutdown events"""
-    # Startup
-    logger.info("Starting ClaudeOSaar API server...")
-    await init_db()
-    await init_redis()
-    yield
-    # Shutdown
-    logger.info("Shutting down ClaudeOSaar API server...")
-    await close_db()
-    await close_redis()
-
-# Create FastAPI instance
-app = FastAPI(
-    title="ClaudeOSaar API",
-    description="AI Development Workspace Platform",
-    version="2.2.1-dev",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json",
-    lifespan=lifespan
-)
-
-# Configure CORS with more restrictive settings
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["http://localhost:6601"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  # Explicit methods instead of "*"
-    allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],  # Explicit headers instead of "*"
-    expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"],
-    max_age=86400,  # Cache preflight requests for 24 hours
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Add trusted host middleware
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=settings.ALLOWED_HOSTS
-)
+# Initialize services
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+docker_client = docker.from_env()
+security = HTTPBearer()
 
-# Add security headers middleware
-app.add_middleware(SecurityHeadersMiddleware)
+# JWT configuration
+JWT_SECRET = os.getenv("JWT_SECRET", "your-secret-key")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_DELTA = timedelta(hours=24)
 
-# Add CSRF protection
-app.add_middleware(CSRFMiddleware)
+class User(BaseModel):
+    id: str
+    email: str
+    subscription_tier: str
+    api_key: Optional[str]
 
-# Add authentication middleware
-app.add_middleware(AuthMiddleware)
+class WorkspaceCreate(BaseModel):
+    name: str
+    claude_api_key: str
 
-# Add rate limiting middleware
-app.add_middleware(RateLimitMiddleware)
+class WorkspaceResponse(BaseModel):
+    id: str
+    name: str
+    status: str
+    container_id: Optional[str]
+    terminal_url: Optional[str]
 
-# Include routers
-app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
-app.include_router(users.router, prefix="/api/users", tags=["Users"])
-app.include_router(workspaces.router, prefix="/api/workspaces", tags=["Workspaces"])
-app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
-app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
-app.include_router(health.router, prefix="/api/health", tags=["Health"])
-app.include_router(websocket.router, tags=["WebSockets"])
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
-# Root endpoint
-@app.get("/")
-async def root():
-    """Root endpoint"""
+@app.post("/api/workspaces", response_model=WorkspaceResponse)
+async def create_workspace(
+    workspace: WorkspaceCreate,
+    current_user = Depends(verify_token)
+):
+    """Create a new Claude workspace container"""
+    workspace_id = str(uuid.uuid4())
+    
+    # Determine resource limits based on subscription tier
+    tier_limits = {
+        "free": {"mem_limit": "512m", "cpu_quota": 50000},
+        "pro": {"mem_limit": "2g", "cpu_quota": 200000},
+        "enterprise": {"mem_limit": "8g", "cpu_quota": 400000}
+    }
+    
+    limits = tier_limits.get(current_user.get("subscription_tier", "free"))
+    
+    # Create container
+    container = docker_client.containers.run(
+        "claudeosaar/workspace:latest",
+        name=f"claude-workspace-{workspace_id}",
+        environment={
+            "CLAUDE_API_KEY": workspace.claude_api_key,
+            "WORKSPACE_ID": workspace_id,
+            "USER_ID": current_user["user_id"]
+        },
+        volumes={
+            f"/user_mounts/{current_user['user_id']}/{workspace_id}": {
+                "bind": "/workspace",
+                "mode": "rw"
+            }
+        },
+        mem_limit=limits["mem_limit"],
+        cpu_quota=limits["cpu_quota"],
+        detach=True,
+        network="claude-net"
+    )
+    
+    return WorkspaceResponse(
+        id=workspace_id,
+        name=workspace.name,
+        status="running",
+        container_id=container.id,
+        terminal_url=f"/terminal/{workspace_id}"
+    )
+
+@app.get("/api/workspaces/{workspace_id}")
+async def get_workspace(
+    workspace_id: str,
+    current_user = Depends(verify_token)
+):
+    """Get workspace details"""
+    try:
+        container = docker_client.containers.get(f"claude-workspace-{workspace_id}")
+        return WorkspaceResponse(
+            id=workspace_id,
+            name=container.name,
+            status=container.status,
+            container_id=container.id,
+            terminal_url=f"/terminal/{workspace_id}"
+        )
+    except docker.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+
+@app.delete("/api/workspaces/{workspace_id}")
+async def delete_workspace(
+    workspace_id: str,
+    current_user = Depends(verify_token)
+):
+    """Delete a workspace"""
+    try:
+        container = docker_client.containers.get(f"claude-workspace-{workspace_id}")
+        container.stop()
+        container.remove()
+        return {"message": "Workspace deleted successfully"}
+    except docker.errors.NotFound:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+
+@app.post("/api/billing/create-subscription")
+async def create_subscription(
+    tier: str,
+    current_user = Depends(verify_token)
+):
+    """Create Stripe subscription"""
+    price_ids = {
+        "pro": "price_1234567890",  # Replace with actual Stripe price IDs
+        "enterprise": "price_0987654321"
+    }
+    
+    if tier not in price_ids:
+        raise HTTPException(status_code=400, detail="Invalid tier")
+    
+    # Create Stripe customer if not exists
+    customer = stripe.Customer.create(
+        email=current_user["email"],
+        metadata={"user_id": current_user["user_id"]}
+    )
+    
+    # Create subscription
+    subscription = stripe.Subscription.create(
+        customer=customer.id,
+        items=[{"price": price_ids[tier]}],
+        payment_behavior="default_incomplete",
+        expand=["latest_invoice.payment_intent"]
+    )
+    
     return {
-        "message": "Welcome to ClaudeOSaar API",
-        "version": "2.2.0",
-        "docs": "/api/docs",
-        "health": "/api/health"
+        "subscription_id": subscription.id,
+        "client_secret": subscription.latest_invoice.payment_intent.client_secret
     }
 
-# Global exception handler
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions"""
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.detail,
-            "status_code": exc.status_code,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    )
+@app.get("/api/memory-bank/search")
+async def search_memory_bank(
+    query: str,
+    workspace_id: str,
+    current_user = Depends(verify_token)
+):
+    """Search the memory bank"""
+    # Simplified implementation - in production, use vector search
+    results = [
+        {"content": "Sample memory bank entry", "relevance": 0.9}
+    ]
+    return {"results": results}
 
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    """Handle general exceptions"""
-    logger.error(f"Unhandled exception: {exc}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "Internal server error",
-            "status_code": 500,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    )
+@app.post("/api/memory-bank/store")
+async def store_memory(
+    content: str,
+    workspace_id: str,
+    current_user = Depends(verify_token)
+):
+    """Store content in memory bank"""
+    # Simplified implementation
+    return {"message": "Content stored successfully"}
 
-# Stripe webhook endpoint (separate from main API auth)
-@app.post("/api/webhooks/stripe")
-async def stripe_webhook(request: Request):
-    """Handle Stripe webhooks"""
-    from .services.stripe_service import stripe_service
-    
-    payload = await request.body()
-    sig_header = request.headers.get('stripe-signature')
-    
-    try:
-        await stripe_service.handle_webhook(
-            payload.decode('utf-8'),
-            sig_header
-        )
-        return {"status": "success"}
-    except ValueError as e:
-        logger.error(f"Invalid webhook payload: {e}")
-        raise HTTPException(status_code=400, detail="Invalid payload")
-    except Exception as e:
-        logger.error(f"Webhook error: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "timestamp": datetime.utcnow()}
 
-# WebSocket endpoints are now in routes/websocket.py
-
-# Metrics endpoint
-@app.get("/api/metrics")
-async def metrics():
-    """Prometheus metrics endpoint"""
-    from .services.metrics_service import metrics_service
-    return await metrics_service.get_metrics()
-
-# Main entry point
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        reload=settings.DEBUG,
-        log_level="info",
-        access_log=True,
-        ssl_keyfile=settings.SSL_KEYFILE if settings.USE_SSL else None,
-        ssl_certfile=settings.SSL_CERTFILE if settings.USE_SSL else None,
-    )
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=6600)

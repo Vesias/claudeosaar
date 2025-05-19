@@ -15,15 +15,13 @@ Bitte lesen Sie die [LICENSE](LICENSE)-Datei für vollständige Details zu den N
 ## Features
 
 - **Containerized Workspaces**: Docker-based isolated environments per user
-- **Claude CLI Integration**: Native Anthropic Claude Code support
+- **Claude CLI Integration**: Native Anthropic Claude Code support  
 - **MCP Server**: Model Context Protocol for enhanced AI capabilities
 - **Memory Bank**: Persistent context storage and retrieval system
 - **Multi-tenant Support**: User isolation with resource limits based on subscription tier
 - **Plugin System**: Extensible architecture for custom integrations
 
-## Getting Started
-
-> **Hinweis**: Dieser Code darf nur zu Ansichtszwecken verwendet werden. Eine Installation gemäß dieser Anleitung ist nur für autorisierte Benutzer erlaubt.
+## Quick Start
 
 1. Clone the repository
 ```bash
@@ -31,51 +29,48 @@ git clone https://github.com/claudeosaar/claudeosaar.git
 cd claudeosaar
 ```
 
-2. Install dependencies
-```bash
-npm install
-```
-
-3. Set up environment variables
+2. Set up environment
 ```bash
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your API keys and configuration
 ```
 
-4. Run development server
+3. Start all services
 ```bash
-# Option 1: Run all services together (API, UI, MCP)
-npm run dev:all
-
-# Option 2: Run services separately
-# Terminal 1: Start API server
-npm run dev
-
-# Terminal 2: Start UI development server
-npm run dev:ui
-
-# Terminal 3: Start MCP server
-npm run dev:mcp
+./start.sh
 ```
 
-5. Or use Docker for a complete environment
+4. Access the UI at http://localhost:6601
+
+## Development
+
 ```bash
-# Start all containers
-./start-containers.sh
+# Start individual services
+npm run dev          # API server (Node.js)
+npm run dev:python   # API server (Python/FastAPI)
+npm run dev:ui       # Frontend UI
+npm run dev:mcp      # MCP server
+npm run dev:all      # All services concurrently
 
-# Just run the development servers (without containers)
-npm run dev:all
+# Docker operations
+npm run docker:build # Build containers
+npm run docker:up    # Start containers
+npm run docker:down  # Stop containers
+
+# Testing and linting
+npm test            # Run tests
+npm run lint        # Lint code
+npm run typecheck   # Type checking
 ```
 
-## Local Development Ports
+## Service URLs
 
-ClaudeOSaar services run on the following ports by default:
-
-- API Server: http://localhost:6600
-- Frontend UI: http://localhost:6601
-- MCP Server: http://localhost:6602
-- Grafana (when using Docker): http://localhost:6603
-- A2A Coordinator (when using Docker): http://localhost:6604
+- **UI**: http://localhost:6601
+- **API**: http://localhost:6600
+- **MCP Server**: http://localhost:6602
+- **Qdrant**: http://localhost:6333
+- **Grafana**: http://localhost:6603
+- **A2A Coordinator**: http://localhost:6604
 
 ## Project Structure
 
@@ -83,7 +78,7 @@ ClaudeOSaar services run on the following ports by default:
 .claude/                    # Claude workspace configuration
 ├── agents/                 # AI agent templates and configurations
 ├── commands/               # Custom Claude CLI commands
-├── mcp-server/             # MCP server integration
+├── mcp-server/             # MCP server implementation
 ├── plugins/                # Plugin system configuration
 ├── profiles/               # User profiles and preferences
 ├── projekts/               # Project management
@@ -103,60 +98,54 @@ src/                        # Source code
 ├── core/                   # Core business logic
 ├── plugins/                # Plugin system
 └── ui/                     # User interface components
+
+containers/                 # Container configuration
+├── docker-compose.yaml     # Service orchestration
+└── security/               # Security profiles
+    └── apparmor/           # AppArmor profiles
 ```
 
-## Plugin System
+## Environment Variables
 
-ClaudeOSaar features an extensible plugin system that allows developers to add new functionality:
+Required environment variables in `.env`:
 
-1. **Core Plugin Types**:
-   - Tool integrations (IDE, version control)
-   - AI model extensions
-   - Custom UI components
-   - Workflow automation
+```bash
+# Claude API
+CLAUDE_API_KEY=your_anthropic_key
+CLAUDE_MODEL=claude-3-opus-20240229
+CLAUDE_MAX_TOKENS=4096
 
-2. **Plugin Structure**:
-   ```
-   plugins/my-plugin/
-   ├── plugin.json           # Plugin metadata
-   ├── index.js              # Plugin entry point
-   └── ui/                   # Optional UI components
-   ```
+# Database
+DATABASE_URL=postgresql://claude:password@localhost:5432/claudeosaar
+DB_PASSWORD=your-secure-password
+REDIS_URL=redis://localhost:6379
 
-3. **Example Plugin API Usage**:
-   ```typescript
-   import { BasePlugin } from '../../src/plugins';
-   
-   export default class ExamplePlugin extends BasePlugin {
-     meta = {
-       id: 'example-plugin',
-       name: 'Example Plugin',
-       version: '1.0.0',
-       // ...
-     };
-     
-     async initialize() {
-       // Plugin initialization logic
-       this.api.registerCommand('example', async () => {
-         // Command implementation
-       });
-     }
-     
-     async cleanup() {
-       // Cleanup logic
-     }
-   }
-   ```
+# Authentication
+JWT_SECRET=your-jwt-secret-key
+
+# Stripe (for billing)
+STRIPE_PUBLIC_KEY=pk_test_xxx
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+
+# MCP Server
+MCP_SERVER_PORT=6602
+
+# Environment
+NODE_ENV=development
+API_PORT=6600
+UI_PORT=6601
+```
 
 ## Subscription Tiers
 
 - **Free**: 512MB RAM, 0.5 CPU, 5GB storage
-- **Pro** ($21.99/mo): 2GB RAM, 2 CPU, 50GB storage
-- **Enterprise**: 8GB RAM, 4 CPU, 100GB storage, multi-agent support
+- **Pro** (€13.99/mo): 2GB RAM, 2 CPU, 50GB storage
+- **Enterprise** (€21.99/mo): 8GB RAM, 4 CPU, 100GB storage, multi-agent support
 
 ## License
 
-MIT License - see LICENSE file for details
+Proprietary - ClaudeOSaar GmbH 2024
 
 ## Support
 
