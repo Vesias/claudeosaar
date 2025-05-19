@@ -1,58 +1,70 @@
-import React, { lazy, Suspense, ComponentType } from 'react';
+import React, { lazy, Suspense, ComponentType, useState, useEffect } from 'react';
 import { LoadingSpinner } from './LoadingStates';
+import { ErrorBoundary } from './ErrorBoundary';
 
-// Lazy load component with loading state
+interface FadeInProps {
+  children: React.ReactNode;
+  delay?: number;
+}
+
+// FadeIn wrapper component
+const FadeIn: React.FC<FadeInProps> = ({ children, delay = 0 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    // Small delay to ensure DOM is ready before starting animation
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 10);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  return (
+    <div 
+      className={`animate-fadeIn ${delay ? `animation-delay-${delay}` : ''}`}
+      style={{ opacity: 0 }} // Initial state before animation starts
+    >
+      {children}
+    </div>
+  );
+};
+
+// Lazy load component with loading state and fadeIn effect
 export function lazyLoad<T extends ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
-  fallback?: React.ReactNode
+  fallback?: React.ReactNode,
+  fadeDelay?: number
 ) {
   const LazyComponent = lazy(importFunc);
 
   return (props: React.ComponentProps<T>) => (
     <Suspense fallback={fallback || <LoadingSpinner />}>
-      <LazyComponent {...props} />
+      <FadeIn delay={fadeDelay}>
+        <LazyComponent {...props} />
+      </FadeIn>
     </Suspense>
   );
 }
 
-// Lazy load with error boundary
+// Lazy load with error boundary and fadeIn effect
 export function lazyLoadWithErrorBoundary<T extends ComponentType<any>>(
   importFunc: () => Promise<{ default: T }>,
   fallback?: React.ReactNode,
-  errorFallback?: React.ReactNode
+  errorFallback?: React.ReactNode,
+  fadeDelay?: number
 ) {
   const LazyComponent = lazy(importFunc);
 
   return (props: React.ComponentProps<T>) => (
     <ErrorBoundary fallback={errorFallback}>
       <Suspense fallback={fallback || <LoadingSpinner />}>
-        <LazyComponent {...props} />
+        <FadeIn delay={fadeDelay}>
+          <LazyComponent {...props} />
+        </FadeIn>
       </Suspense>
     </ErrorBoundary>
   );
-}
-
-// Error boundary for lazy components
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; fallback?: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return this.props.fallback || <div>Error loading component</div>;
-    }
-
-    return this.props.children;
-  }
 }
 
 // Preload component

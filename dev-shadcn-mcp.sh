@@ -27,19 +27,19 @@ cd "$PROJECT_ROOT/containers"
 
 # Start with the mcp-plugins profile
 echo -e "${GREEN}Building and starting shadcn-ui MCP Server...${NC}"
-docker-compose --profile mcp-plugins up -d shadcn-ui-mcp
+docker compose --profile mcp-plugins up -d shadcn-ui-mcp
 
 # Wait for the service to be healthy
 echo -e "${BLUE}Waiting for shadcn-ui MCP server to be ready...${NC}"
 sleep 5
 
 # Check if the service is running
-if docker-compose ps | grep -q "shadcn-ui-mcp.*Up"; then
+if docker compose ps | grep -q "shadcn-ui-mcp.*Up"; then
   echo -e "${GREEN}shadcn-ui MCP Server is running at http://localhost:${PORT}${NC}"
-  echo -e "${YELLOW}To stop the server, run: docker-compose --profile mcp-plugins down${NC}"
+  echo -e "${YELLOW}To stop the server, run: docker compose --profile mcp-plugins down${NC}"
 else
   echo -e "${RED}Failed to start shadcn-ui MCP Server${NC}"
-  docker-compose logs shadcn-ui-mcp
+  docker compose logs shadcn-ui-mcp
   exit 1
 fi
 

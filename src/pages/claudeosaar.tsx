@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
 import { 
   Button,
   Badge,
@@ -23,6 +22,20 @@ import {
   Layers,
   ArrowRight
 } from 'lucide-react';
+import { ErrorBoundary } from '../ui/error/ErrorBoundary';
+import { lazyLoad } from '../components/LazyLoad';
+
+// Dynamically import the TerminalDemo to improve page load performance with fadeIn effect
+const TerminalDemo = lazyLoad(
+  () => import('../components/TerminalDemo'),
+  <div className="flex justify-center items-center py-32">
+    <div className="animate-pulse flex flex-col items-center">
+      <div className="rounded-md bg-neutral-200 dark:bg-neutral-800 h-8 w-24 mb-4"></div>
+      <div className="h-32 w-full max-w-3xl bg-neutral-200 dark:bg-neutral-800 rounded-lg"></div>
+    </div>
+  </div>,
+  200 // 200ms delay for animation
+);
 
 export default function ClaudeOSaarLanding() {
   const router = useRouter();
@@ -193,6 +206,11 @@ export default function ClaudeOSaarLanding() {
         </div>
       </section>
 
+      {/* Terminal Demo Section */}
+      <ErrorBoundary>
+        <TerminalDemo />
+      </ErrorBoundary>
+
       {/* Ecosystem Partners Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-neutral-900/50">
         <div className="max-w-7xl mx-auto">
@@ -207,12 +225,10 @@ export default function ClaudeOSaarLanding() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {partners.map((partner, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+              <div 
+                key={index} 
+                className={`animate-fadeIn animation-delay-${(index + 1) * 100}`}
+                style={{ opacity: 0 }} // Initial state before animation starts
               >
                 <Card 
                   className="h-full bg-neutral-900 border-neutral-800 overflow-hidden relative group"
@@ -237,7 +253,7 @@ export default function ClaudeOSaarLanding() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -263,44 +279,137 @@ export default function ClaudeOSaarLanding() {
               <TabsTrigger value="data">Data Infrastructure</TabsTrigger>
             </TabsList>
             
-            {platformFeatures.map((feature, index) => {
-              // Map the index to the correct tab value
-              const tabValues = ["workspace", "security", "ai", "data"];
-              return (
-              <TabsContent key={index} value={tabValues[index]}>
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-                  <div className="lg:col-span-2">
-                    <div className="aspect-square flex items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-8">
-                      <div className="p-8 rounded-full bg-gradient-to-br from-primary-600/20 to-accent-600/20 text-primary-500">
-                        {feature.icon}
-                      </div>
-                    </div>
-                  </div>
-              )})
-                  <div className="lg:col-span-3">
-                    <h3 className="text-2xl font-bold mb-3 text-white">{feature.title}</h3>
-                    <p className="text-lg text-neutral-300 mb-6">{feature.description}</p>
-                    <ul className="space-y-3">
-                      {feature.details.map((detail, idx) => (
-                        <li key={idx} className="flex items-start gap-3">
-                          <div className="p-1 rounded-full bg-primary-500/20 text-primary-500 mt-0.5">
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                          <span className="text-neutral-200">{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-8">
-                      <Button variant="outline" onClick={() => router.push('/platform')}>
-                        Learn more about {feature.title}
-                      </Button>
+            <TabsContent value="workspace">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                <div className="lg:col-span-2">
+                  <div className="aspect-square flex items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-8">
+                    <div className="p-8 rounded-full bg-gradient-to-br from-primary-600/20 to-accent-600/20 text-primary-500">
+                      {platformFeatures[0].icon}
                     </div>
                   </div>
                 </div>
-              </TabsContent>
-            ))}
+                <div className="lg:col-span-3">
+                  <h3 className="text-2xl font-bold mb-3 text-white">{platformFeatures[0].title}</h3>
+                  <p className="text-lg text-neutral-300 mb-6">{platformFeatures[0].description}</p>
+                  <ul className="space-y-3">
+                    {platformFeatures[0].details.map((detail, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="p-1 rounded-full bg-primary-500/20 text-primary-500 mt-0.5">
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span className="text-neutral-200">{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    <Button variant="outline" onClick={() => router.push('/platform')}>
+                      Learn more about {platformFeatures[0].title}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="security">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                <div className="lg:col-span-2">
+                  <div className="aspect-square flex items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-8">
+                    <div className="p-8 rounded-full bg-gradient-to-br from-primary-600/20 to-accent-600/20 text-primary-500">
+                      {platformFeatures[1].icon}
+                    </div>
+                  </div>
+                </div>
+                <div className="lg:col-span-3">
+                  <h3 className="text-2xl font-bold mb-3 text-white">{platformFeatures[1].title}</h3>
+                  <p className="text-lg text-neutral-300 mb-6">{platformFeatures[1].description}</p>
+                  <ul className="space-y-3">
+                    {platformFeatures[1].details.map((detail, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="p-1 rounded-full bg-primary-500/20 text-primary-500 mt-0.5">
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span className="text-neutral-200">{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    <Button variant="outline" onClick={() => router.push('/platform')}>
+                      Learn more about {platformFeatures[1].title}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="ai">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                <div className="lg:col-span-2">
+                  <div className="aspect-square flex items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-8">
+                    <div className="p-8 rounded-full bg-gradient-to-br from-primary-600/20 to-accent-600/20 text-primary-500">
+                      {platformFeatures[2].icon}
+                    </div>
+                  </div>
+                </div>
+                <div className="lg:col-span-3">
+                  <h3 className="text-2xl font-bold mb-3 text-white">{platformFeatures[2].title}</h3>
+                  <p className="text-lg text-neutral-300 mb-6">{platformFeatures[2].description}</p>
+                  <ul className="space-y-3">
+                    {platformFeatures[2].details.map((detail, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="p-1 rounded-full bg-primary-500/20 text-primary-500 mt-0.5">
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span className="text-neutral-200">{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    <Button variant="outline" onClick={() => router.push('/platform')}>
+                      Learn more about {platformFeatures[2].title}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="data">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                <div className="lg:col-span-2">
+                  <div className="aspect-square flex items-center justify-center rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 p-8">
+                    <div className="p-8 rounded-full bg-gradient-to-br from-primary-600/20 to-accent-600/20 text-primary-500">
+                      {platformFeatures[3].icon}
+                    </div>
+                  </div>
+                </div>
+                <div className="lg:col-span-3">
+                  <h3 className="text-2xl font-bold mb-3 text-white">{platformFeatures[3].title}</h3>
+                  <p className="text-lg text-neutral-300 mb-6">{platformFeatures[3].description}</p>
+                  <ul className="space-y-3">
+                    {platformFeatures[3].details.map((detail, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <div className="p-1 rounded-full bg-primary-500/20 text-primary-500 mt-0.5">
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <span className="text-neutral-200">{detail}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    <Button variant="outline" onClick={() => router.push('/platform')}>
+                      Learn more about {platformFeatures[3].title}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </section>
@@ -324,13 +433,10 @@ export default function ClaudeOSaarLanding() {
             {/* Timeline items */}
             <div className="space-y-12">
               {timeline.map((item, index) => (
-                <motion.div
+                <div
                   key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className={`relative flex flex-col md:flex-row ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                  className={`relative flex flex-col md:flex-row ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} animate-fadeIn animation-delay-${(index + 1) * 100}`}
+                  style={{ opacity: 0 }} // Initial state before animation starts
                 >
                   {/* Center dot */}
                   <div className="absolute left-20 md:left-1/2 transform -translate-x-1/2 flex items-center justify-center">
@@ -347,7 +453,7 @@ export default function ClaudeOSaarLanding() {
                       <p className="text-neutral-300 mt-2">{item.description}</p>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>

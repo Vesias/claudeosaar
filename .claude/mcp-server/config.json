@@ -62,7 +62,7 @@
       "name": "shadcn-ui",
       "enabled": true,
       "config": {
-        "url": "http://shadcn-ui-mcp:8080",
+        "url": "http://localhost:6605",
         "framework": "react"
       },
       "autoApprove": [

@@ -2,17 +2,14 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Clone the shadcn-ui-mcp-unofficial repository
-RUN apk add --no-cache git
-RUN git clone https://github.com/Jpisnice/shadcn-ui-mcp-unofficial.git .
+# Install Express and CORS
+RUN npm init -y && \
+    npm install express cors
 
-# Install dependencies
-RUN npm install
-
-# Build the TypeScript server
-RUN npm run build
+# Copy our simple server implementation
+COPY server.js .
 
 EXPOSE 8080
 
-# Run the server in HTTP/SSE mode
-CMD ["node", "dist/http-server.js"]
+# Run the simple Express server
+CMD ["node", "server.js"]
