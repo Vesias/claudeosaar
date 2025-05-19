@@ -6,6 +6,7 @@ interface User {
   email: string;
   name: string;
   role: string;
+  subscriptionTier?: 'free' | 'pro' | 'enterprise'; // Added subscriptionTier
 }
 
 interface AuthContextType {
@@ -101,7 +102,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: '1',
           email: email || 'dev@example.com',
           name: email.split('@')[0] || 'Developer',
-          role: 'admin'
+          role: 'admin',
+          subscriptionTier: 'pro' as 'free' | 'pro' | 'enterprise' // Corrected type
         };
         
         localStorage.setItem('auth_token', 'mock_token_for_development');

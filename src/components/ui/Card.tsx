@@ -39,14 +39,15 @@ export interface CardProps
     VariantProps<typeof cardVariants> {
   header?: React.ReactNode;
   footer?: React.ReactNode;
+  gradient?: string; // Added optional gradient prop
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant, hover, padding, header, footer, children, ...props }, ref) => {
+  ({ className, variant, hover, padding, header, footer, children, gradient, ...props }, ref) => { // Added gradient to destructuring
     return (
       <div
         ref={ref}
-        className={cn(cardVariants({ variant, hover, padding, className }))}
+        className={cn(cardVariants({ variant, hover, padding, className }), gradient && variant === 'gradient' ? gradient : '')} // Apply gradient if variant is 'gradient'
         {...props}
       >
         {header && (
