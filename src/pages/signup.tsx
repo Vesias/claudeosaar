@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
-import { Globe, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { Globe, Mail, Lock, User, ArrowRight, AlertCircle, Check } from 'lucide-react';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export default function Signup() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const router = useRouter();
-  const { login, isAuthenticated } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   
   // Redirect to dashboard if already logged in
   useEffect(() => {
@@ -19,16 +24,49 @@ export default function Login() {
     }
   }, [isAuthenticated, router]);
 
+  const passwordRequirements = [
+    { met: formData.password.length >= 8, text: 'At least 8 characters' },
+    { met: /[A-Z]/.test(formData.password), text: 'One uppercase letter' },
+    { met: /[a-z]/.test(formData.password), text: 'One lowercase letter' },
+    { met: /[0-9]/.test(formData.password), text: 'One number' },
+    { met: /[!@#$%^&*]/.test(formData.password), text: 'One special character' }
+  ];
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Validate form
+    if (!acceptedTerms) {
+      setError('Please accept the terms and conditions');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    const allRequirementsMet = passwordRequirements.every(req => req.met);
+    if (!allRequirementsMet) {
+      setError('Please meet all password requirements');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await register(formData.name, formData.email, formData.password);
       router.push('/workspace');
     } catch (err: any) {
-      setError(err.message || 'Invalid credentials. Please try again.');
+      setError(err.message || 'Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -45,23 +83,23 @@ export default function Login() {
               <span className="text-xl font-bold text-gray-900">ClaudeOSaar</span>
             </Link>
             <Link 
-              href="/signup" 
+              href="/login" 
               className="text-gray-600 hover:text-gray-900 transition-colors"
             >
-              Don't have an account?
+              Already have an account?
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Login Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      {/* Signup Form */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-md w-full">
           <div className="bg-white shadow-xl rounded-lg p-8">
             <div className="text-center mb-8">
               <Globe className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-              <p className="text-gray-600 mt-2">Sign in to your ClaudeOSaar account</p>
+              <h2 className="text-3xl font-bold text-gray-900">Create your account</h2>
+              <p className="text-gray-600 mt-2">Start building with ClaudeOSaar today</p>
             </div>
 
             {error && (
@@ -73,6 +111,27 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Full name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg 
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             transition-colors"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                   Email address
                 </label>
@@ -80,14 +139,15 @@ export default function Login() {
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg 
                              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                              transition-colors"
                     placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
@@ -100,42 +160,84 @@ export default function Login() {
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <input
                     id="password"
+                    name="password"
                     type="password"
                     required
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg 
                              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
                              transition-colors"
                     placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                </div>
+                
+                {/* Password Requirements */}
+                {formData.password && (
+                  <div className="mt-3 space-y-2">
+                    {passwordRequirements.map((req, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Check 
+                          className={`h-4 w-4 ${req.met ? 'text-green-500' : 'text-gray-300'}`} 
+                        />
+                        <span className={`text-sm ${req.met ? 'text-green-700' : 'text-gray-500'}`}>
+                          {req.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg 
+                             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                             transition-colors"
+                    placeholder="••••••••"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Remember me</span>
+              <div className="flex items-start">
+                <input
+                  id="terms"
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
+                />
+                <label htmlFor="terms" className="ml-2 text-sm text-gray-700">
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+                    Privacy Policy
+                  </Link>
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
-                >
-                  Forgot password?
-                </Link>
               </div>
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !acceptedTerms}
                 className={`w-full bg-blue-600 text-white py-3 px-4 rounded-lg 
                          hover:bg-blue-700 transition-colors flex items-center justify-center gap-2
-                         ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                         ${(isLoading || !acceptedTerms) ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {isLoading ? 'Creating account...' : 'Create account'}
                 {!isLoading && <ArrowRight className="h-5 w-5" />}
               </button>
             </form>
@@ -146,7 +248,7 @@ export default function Login() {
                   <div className="w-full border-t border-gray-300"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-white text-gray-500">Or sign up with</span>
                 </div>
               </div>
 
@@ -184,9 +286,9 @@ export default function Login() {
             </div>
 
             <p className="mt-8 text-center text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-700">
-                Sign up for free
+              Already have an account?{' '}
+              <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+                Sign in
               </Link>
             </p>
           </div>
