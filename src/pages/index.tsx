@@ -10,6 +10,7 @@ import PricingCard from '../components/PricingCard';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Card } from '../components/ui/Card';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../components/ui/accordion';
 import { motion } from 'framer-motion';
 import { 
   Brain, 
@@ -342,6 +343,94 @@ export default function Home() {
 
       {/* Saarland Map Section */}
       <SaarlandMap />
+
+      {/* FAQ Section with Accordion */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-neutral-900/50">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-neutral-400 max-w-3xl mx-auto">
+              Everything you need to know about ClaudeOSaar
+            </p>
+          </motion.div>
+
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="text-lg font-medium">
+                What is ClaudeOSaar?
+              </AccordionTrigger>
+              <AccordionContent>
+                ClaudeOSaar is a sovereign AI development workspace OS that provides containerized development environments with native Claude CLI integration. It offers isolated workspaces with resource limits based on subscription tier, memory bank for context storage, and multi-agent support for enterprise users.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-2">
+              <AccordionTrigger className="text-lg font-medium">
+                How does containerization work?
+              </AccordionTrigger>
+              <AccordionContent>
+                Each user workspace runs in an isolated Docker container with AppArmor security profiles. Containers have resource limits based on your subscription tier (CPU, RAM, storage) and persistent volume mounting at "/user_mounts/USER_ID/WORKSPACE_ID". This ensures security, isolation, and resource efficiency.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-lg font-medium">
+                What is the Model Context Protocol (MCP)?
+              </AccordionTrigger>
+              <AccordionContent>
+                The Model Context Protocol (MCP) enables AI assistants like Claude to interact with your development environment through tools. This includes file operations, terminal commands, memory bank access, and more. MCP integration allows Claude to understand your codebase, execute commands, and provide context-aware assistance.
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-4">
+              <AccordionTrigger className="text-lg font-medium">
+                What subscription tiers are available?
+              </AccordionTrigger>
+              <AccordionContent>
+                We offer three subscription tiers:
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li><span className="font-medium">Free:</span> 512MB RAM, 0.5 CPU, 5GB storage, 1 workspace</li>
+                  <li><span className="font-medium">Pro (€13.99/mo):</span> 2GB RAM, 2 CPU, 50GB storage, 5 workspaces</li>
+                  <li><span className="font-medium">Enterprise (€21.99/mo):</span> 8GB RAM, 4 CPU, 100GB storage, unlimited workspaces, multi-agent support</li>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-5">
+              <AccordionTrigger className="text-lg font-medium">
+                How secure is ClaudeOSaar?
+              </AccordionTrigger>
+              <AccordionContent>
+                Security is our top priority. We implement multiple layers of protection:
+                <ul className="list-disc pl-6 mt-2 space-y-1">
+                  <li>AppArmor security profiles for container hardening</li>
+                  <li>Network isolation via Docker networks</li>
+                  <li>JWT authentication with HTTP-only cookies</li>
+                  <li>API key isolation per workspace</li>
+                  <li>Resource limits to prevent abuse</li>
+                  <li>Regular security audits and updates</li>
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+            
+            <AccordionItem value="item-6">
+              <AccordionTrigger className="text-lg font-medium">
+                What's unique about the Memory Bank?
+              </AccordionTrigger>
+              <AccordionContent>
+                The Memory Bank is our persistent context storage system that allows Claude to retain information across sessions. It stores development progress, documentation, and project context using vector embeddings for efficient retrieval. This means Claude can reference past conversations, documentation, and project history to provide more consistent assistance.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">

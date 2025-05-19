@@ -24,6 +24,9 @@ export { Skeleton, SkeletonText, SkeletonButton, SkeletonAvatar, SkeletonCard } 
 // Label exports
 export { Label } from './Label';
 
+// Accordion exports
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion';
+
 // Re-export commonly used components from existing files if they exist
 export { LoadingSpinner } from './LoadingSpinner';
 export * from './dialog';
