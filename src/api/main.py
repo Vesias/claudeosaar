@@ -10,8 +10,34 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
+from prometheus_client import Counter, Histogram, Gauge, generate_latest
+from starlette.responses import Response
+
+from .logging import logger, log_requests
+from .middleware.rate_limit import RateLimitMiddleware
 
 app = FastAPI(title="ClaudeOSaar API")
+
+# Prometheus metrics
+http_requests_total = Counter(
+    'http_requests_total',
+    'Total HTTP requests',
+    ['method', 'endpoint', 'status']
+)
+http_request_duration = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration',
+    ['method', 'endpoint']
+)
+active_workspaces = Gauge(
+    'claudeosaar_active_workspaces',
+    'Number of active workspaces',
+    ['tier']
+)
+
+# Middleware
+app.add_middleware(RateLimitMiddleware, calls_per_minute=60)
+app.middleware("http")(log_requests)
 
 # CORS configuration
 app.add_middleware(
@@ -197,6 +223,11 @@ async def store_memory(
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "timestamp": datetime.utcnow()}
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    return Response(generate_latest(), media_type="text/plain")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,113 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: claude
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: claudeosaar_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        npm ci
+        pip install -r src/api/requirements.txt
+    
+    - name: Run linting
+      run: |
+        npm run lint
+        npm run typecheck
+    
+    - name: Run tests
+      run: |
+        npm test
+        pytest tests/
+      env:
+        DATABASE_URL: postgresql://claude:testpass@localhost:5432/claudeosaar_test
+        JWT_SECRET: test_secret
+        CLAUDE_API_KEY: test_key
+    
+    - name: Build containers
+      run: |
+        docker-compose -f containers/docker-compose.yaml build
+
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Trivy security scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        severity: 'CRITICAL,HIGH'
+    
+    - name: Run Docker security scan
+      run: |
+        docker scan claudeosaar/api:latest || true
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to staging
+      run: |
+        ./deploy.sh staging
+      env:
+        DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_STAGING }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        ./deploy.sh production
+      env:
+        DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY_PROD }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
