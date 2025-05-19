@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
+import SaarlandMap from '../components/SaarlandMap';
 import { 
   Server, 
   Brain, 
@@ -481,6 +482,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Saarland Map Section */}
+      <SaarlandMap />
 
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">

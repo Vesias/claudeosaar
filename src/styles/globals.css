@@ -1,29 +1,52 @@
+@import './design-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ClaudeOSaar Enterprise Theme */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 248, 249, 250;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 15, 23, 42;
-    --background-end-rgb: 30, 41, 59;
-  }
+  --gradient-primary: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  --gradient-secondary: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --gradient-accent: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  --gradient-success: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);
+  --gradient-error: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --gradient-info: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%);
+  
+  --glow-primary: 0 0 40px rgba(37, 99, 235, 0.5);
+  --glow-accent: 0 0 40px rgba(168, 85, 247, 0.5);
+  --glow-success: 0 0 40px rgba(34, 197, 94, 0.5);
+  --glow-error: 0 0 40px rgba(239, 68, 68, 0.5);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  @apply bg-neutral-950 text-neutral-50;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Premium scrollbar for Webkit browsers */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-900;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-700 hover:bg-neutral-600;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:active {
+  @apply bg-neutral-500;
 }
 
 /* ClaudeOSaar custom styles */
@@ -91,67 +114,127 @@ body {
 }
 
 @layer base {
-  :root {
-    /* Dark theme by default for enterprise look */
-    --background: 220 40% 5%;
-    --foreground: 0 0% 98%;
-    --card: 220 40% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 40% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 217 91% 60%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --radius: 0.5rem;
+  /* Headings */
+  h1 {
+    @apply font-display text-5xl font-bold tracking-tight;
   }
-  .dark {
-    --background: 220 40% 5%;
-    --foreground: 0 0% 98%;
-    --card: 220 40% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 220 40% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 217 91% 60%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+  h2 {
+    @apply font-display text-4xl font-bold tracking-tight;
+  }
+  h3 {
+    @apply font-display text-3xl font-semibold;
+  }
+  h4 {
+    @apply font-display text-2xl font-semibold;
+  }
+  h5 {
+    @apply font-display text-xl font-medium;
+  }
+  h6 {
+    @apply font-display text-lg font-medium;
+  }
+  
+  /* Links */
+  a {
+    @apply transition-colors duration-200;
+  }
+  
+  /* Code */
+  code {
+    @apply font-mono text-sm;
+  }
+  
+  pre {
+    @apply font-mono text-sm;
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+@layer components {
+  /* Glass effect components */
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
   }
-  body {
-    @apply bg-background text-foreground;
+  
+  .glass-hover {
+    @apply hover:bg-white/10 hover:border-white/20 transition-all duration-200;
+  }
+  
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent;
+  }
+  
+  /* Button base */
+  .btn {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-200 inline-flex items-center justify-center gap-2;
+  }
+  
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white shadow-lg hover:shadow-xl hover:scale-[1.02];
+  }
+  
+  .btn-secondary {
+    @apply btn bg-secondary hover:bg-neutral-700 text-neutral-200;
+  }
+  
+  .btn-accent {
+    @apply btn bg-gradient-to-r from-accent-600 to-accent-700 hover:from-accent-700 hover:to-accent-800 text-white shadow-lg hover:shadow-xl;
+  }
+  
+  .btn-glass {
+    @apply btn glass glass-hover;
+  }
+  
+  /* Card components */
+  .card {
+    @apply rounded-2xl bg-card text-card-foreground shadow-xl border border-border overflow-hidden;
+  }
+  
+  .card-glass {
+    @apply card glass;
+  }
+  
+  /* Input components */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200;
+  }
+  
+  /* Badge components */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary-500/20 text-primary-300 border border-primary-500/30;
+  }
+  
+  .badge-success {
+    @apply badge bg-success-500/20 text-success-300 border border-success-500/30;
+  }
+  
+  .badge-warning {
+    @apply badge bg-warning-500/20 text-warning-300 border border-warning-500/30;
+  }
+  
+  .badge-error {
+    @apply badge bg-error-500/20 text-error-300 border border-error-500/30;
+  }
+  
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-neutral-800 rounded-lg;
+  }
+  
+  /* Hover effects */
+  .hover-glow {
+    @apply hover:shadow-glow transition-shadow duration-300;
+  }
+  
+  .hover-lift {
+    @apply hover:-translate-y-1 transition-transform duration-200;
+  }
+  
+  .hover-scale {
+    @apply hover:scale-105 transition-transform duration-200;
   }
 }
