@@ -12,32 +12,15 @@ import { Badge } from '../components/ui/Badge';
 import { Card } from '../components/ui/Card';
 import { motion } from 'framer-motion';
 import { 
-  Server, 
   Brain, 
   Database, 
   Users, 
   Shield, 
-  Zap,
-  ChevronRight,
-  Code,
-  Terminal,
   Cloud,
   Boxes,
   Globe,
   ArrowRight,
-  Star,
-  Check,
-  Sparkles,
-  Lock,
-  Gauge,
-  GitBranch,
-  BarChart3,
   Building2,
-  Award,
-  FileCode,
-  Layers,
-  Cpu,
-  Play,
   Menu,
   X
 } from 'lucide-react';
@@ -172,12 +155,6 @@ export default function Home() {
     }
   ];
 
-  const stats = [
-    { value: "10k+", label: "Active Developers" },
-    { value: "1M+", label: "AI Queries Processed" },
-    { value: "99.9%", label: "Uptime SLA" },
-    { value: "24/7", label: "Enterprise Support" }
-  ];
 
   return (
     <div className="min-h-screen bg-neutral-950 text-white">

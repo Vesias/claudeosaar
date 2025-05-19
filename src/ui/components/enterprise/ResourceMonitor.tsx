@@ -12,7 +12,7 @@ import {
   Settings,
   Eye
 } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/Button';
 import { ResourceChart } from './charts/ResourceChart';
 import axios from 'axios';
 

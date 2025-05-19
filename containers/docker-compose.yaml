@@ -72,6 +72,20 @@ services:
     networks:
       - claude-net
 
+  # shadcn-ui MCP Server
+  shadcn-ui-mcp:
+    build:
+      context: ../.claude/mcp-plugins/shadcn-ui
+      dockerfile: Dockerfile
+    ports:
+      - "6605:8080"
+    environment:
+      - FRAMEWORK=react
+    networks:
+      - claude-net
+    profiles:
+      - mcp-plugins
+
   # A2A Coordinator (for multi-agent support)
   a2a-coordinator:
     build:

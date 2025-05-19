@@ -65,27 +65,27 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       
       // Default error UI
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6">
+        <div className="min-h-screen bg-neutral-950 flex items-center justify-center px-4">
+          <div className="max-w-md w-full bg-neutral-900 rounded-xl shadow-xl border border-white/10 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-red-100 rounded-lg">
-                <AlertCircle className="h-6 w-6 text-red-600" />
+              <div className="p-3 bg-red-500/10 rounded-lg">
+                <AlertCircle className="h-6 w-6 text-red-500" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-white">
                   Something went wrong
                 </h2>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-neutral-400">
                   An unexpected error occurred
                 </p>
               </div>
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-700 mb-2">
+              <p className="text-neutral-300 mb-2">
                 We're sorry for the inconvenience. You can try:
               </p>
-              <ul className="list-disc list-inside text-gray-600 space-y-1">
+              <ul className="list-disc list-inside text-neutral-400 space-y-1">
                 <li>Refreshing the page</li>
                 <li>Going back to the homepage</li>
                 <li>Contacting support if the issue persists</li>
@@ -94,10 +94,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mb-6">
-                <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
+                <summary className="cursor-pointer text-sm text-neutral-400 hover:text-neutral-300">
                   Error details (development only)
                 </summary>
-                <pre className="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">
+                <pre className="mt-2 p-3 bg-neutral-800 rounded-lg text-xs overflow-auto text-red-400 font-mono">
                   {this.state.error.toString()}
                   {this.state.error.stack}
                 </pre>
@@ -107,18 +107,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <div className="flex gap-3">
               <button
                 onClick={this.handleReset}
-                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg 
-                         hover:bg-blue-700 transition-colors flex items-center 
-                         justify-center gap-2"
+                className="flex-1 bg-primary-600 text-white px-4 py-2 rounded-lg 
+                         hover:bg-primary-700 transition-colors flex items-center 
+                         justify-center gap-2 font-medium"
               >
                 <RefreshCw className="h-4 w-4" />
                 Try Again
               </button>
               <a
                 href="/"
-                className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg 
-                         hover:bg-gray-200 transition-colors flex items-center 
-                         justify-center gap-2"
+                className="flex-1 bg-neutral-800 text-neutral-300 px-4 py-2 rounded-lg 
+                         hover:bg-neutral-700 transition-colors flex items-center 
+                         justify-center gap-2 font-medium border border-white/10"
               >
                 <Home className="h-4 w-4" />
                 Go Home

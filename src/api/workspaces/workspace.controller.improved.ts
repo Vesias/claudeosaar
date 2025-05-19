@@ -6,7 +6,6 @@ import { Request, Response, NextFunction } from 'express';
 import { ContainerManager } from '../../containers/container-manager';
 import { 
   Workspace, 
-  WorkspaceCreate, 
   WorkspaceUpdate,
   PaginatedResponse,
   WorkspaceFilters,
@@ -181,8 +180,7 @@ export class WorkspaceController {
           message: 'Invalid request data',
           statusCode: 400,
           timestamp: new Date().toISOString(),
-          path: req.path,
-          details: validation.errors.issues
+          path: req.path
         };
         res.status(400).json(error);
         return;
@@ -200,7 +198,7 @@ export class WorkspaceController {
         enterprise: -1 // unlimited
       };
       
-      const limit = workspaceLimits[userTier];
+      const limit = workspaceLimits[userTier as keyof typeof workspaceLimits];
       
       // Mock check - replace with actual database query
       const existingWorkspaceCount = 0;
@@ -219,9 +217,10 @@ export class WorkspaceController {
       
       // Create container
       const container = await this.containerManager.createContainer({
-        name: workspaceData.name,
+        workspaceId: `ws-${Date.now()}`,
         tier: workspaceData.tier,
-        userId
+        userId,
+        apiKey: `ws-key-${Date.now()}`
       });
       
       // Create workspace record
@@ -233,9 +232,9 @@ export class WorkspaceController {
         status: 'pending',
         containerId: container.id,
         resources: {
-          cpu: container.resources.cpu,
-          memory: container.resources.memory,
-          storage: container.resources.storage
+          cpu: container.resources.cpus.toString(),
+          memory: (container.resources.memory / 1024 / 1024 / 1024).toFixed(1) + 'GB',
+          storage: (container.resources.storage / 1024 / 1024 / 1024).toFixed(0) + 'GB'
         },
         metadata: {
           region: workspaceData.region,

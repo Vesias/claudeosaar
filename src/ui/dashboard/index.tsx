@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [workspaces, setWorkspaces] = useState([]);
+  const [workspaces, setWorkspaces] = useState<Array<{ id: string; name: string; status: string; lastAccessed: string }>>([]);
 
   useEffect(() => {
     // Simulate loading workspaces

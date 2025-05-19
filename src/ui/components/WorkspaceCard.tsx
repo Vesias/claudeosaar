@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/Button';
 import { Terminal, Trash2, Activity } from 'lucide-react';
 
 interface WorkspaceCardProps {

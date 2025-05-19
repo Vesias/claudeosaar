@@ -108,7 +108,7 @@ interface CustomRequest extends express.Request {
 }
 
 // Add request ID for tracking requests
-app.use((req: CustomRequest, res, next) => {
+app.use((req: CustomRequest, _res, next) => {
   req.id = uuidv4();
   next();
 });
@@ -126,7 +126,7 @@ app.use((req: CustomRequest, res, next) => {
 });
 
 // Add security headers to all responses
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   // Ensure X-Content-Type-Options is set to prevent MIME type sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
   
@@ -217,12 +217,12 @@ app.use('/api/workspaces', workspacesRoutes);
 // Mock routes removed - using real auth service now
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Error handler
-app.use((err: any, req: CustomRequest, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: CustomRequest, res: express.Response, _next: express.NextFunction) => {
   logger.error(`[${req.id}] API Error:`, err);
   res.status(500).json({
     success: false,

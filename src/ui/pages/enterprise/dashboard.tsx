@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { 
-  BarChart3, 
   Users, 
   Server, 
   Activity, 
   DollarSign,
   Shield,
-  AlertTriangle,
   Settings,
   Building2,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown
+  ChevronRight
 } from 'lucide-react';
 import { MetricsCard } from '../../components/enterprise/MetricsCard';
 import { TeamManagement } from '../../components/enterprise/TeamManagement';
@@ -285,7 +281,7 @@ function ActivityFeed() {
     { id: 4, user: 'system', action: 'Automated backup completed', time: '3 hours ago', type: 'system' },
   ];
 
-  const getActivityIcon = (type) => {
+  const getActivityIcon = (type: string) => {
     switch (type) {
       case 'create': return <Server className="h-4 w-4 text-green-500" />;
       case 'security': return <Shield className="h-4 w-4 text-yellow-500" />;

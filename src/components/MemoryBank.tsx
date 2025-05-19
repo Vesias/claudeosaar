@@ -16,9 +16,6 @@ import {
   FileText,
   Code,
   Package,
-  GitBranch,
-  AlertCircle,
-  CheckCircle,
   RefreshCw,
   Brain,
   X

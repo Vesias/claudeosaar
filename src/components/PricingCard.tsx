@@ -1,11 +1,12 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/router';
-import { Check, Star } from 'lucide-react';
+import { Check, Star, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
+import { useInView } from 'react-intersection-observer';
 
 interface PricingTier {
   name: string;
@@ -16,21 +17,67 @@ interface PricingTier {
   popular: boolean;
   gradient: string;
   index: number;
+  featureDetails?: { [key: string]: string };
 }
 
-const PricingCard: React.FC<PricingTier> = ({ name, price, description, features, cta, popular, gradient, index }) => {
+const PricingCard: React.FC<PricingTier> = ({ 
+  name, 
+  price, 
+  description, 
+  features, 
+  cta, 
+  popular, 
+  gradient, 
+  index,
+  featureDetails = {}
+}) => {
   const router = useRouter();
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
+    threshold: 0.2,
+    triggerOnce: true
+  });
+  const [expandedFeature, setExpandedFeature] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (inView) {
+      controls.start({
+        opacity: 1,
+        y: 0,
+        transition: {
+          type: "spring",
+          damping: 20,
+          stiffness: 100,
+          delay: index * 0.1
+        }
+      });
+    }
+  }, [controls, inView, index]);
+
+  const cardVariants = {
+    hover: {
+      y: -8,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }
+  };
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      animate={controls}
+      whileHover="hover"
+      variants={cardVariants}
       className={cn(
         'relative',
         popular && 'z-10'
       )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {popular && (
         <motion.div
@@ -49,8 +96,9 @@ const PricingCard: React.FC<PricingTier> = ({ name, price, description, features
         variant={popular ? 'glow' : 'glass'}
         hover="scale"
         className={cn(
-          'relative h-full',
-          popular && 'scale-105'
+          'relative h-full transition-all duration-300',
+          popular && 'scale-105',
+          isHovered && 'shadow-2xl'
         )}
       >
         {/* Gradient Background for Popular Plan */}
@@ -69,7 +117,7 @@ const PricingCard: React.FC<PricingTier> = ({ name, price, description, features
             </div>
           </div>
 
-          {/* Features List */}
+          {/* Features List with Expandable Details */}
           <ul className="space-y-3 mb-8">
             {features.map((feature, featureIndex) => (
               <motion.li
@@ -78,28 +126,57 @@ const PricingCard: React.FC<PricingTier> = ({ name, price, description, features
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.5 + featureIndex * 0.05 }}
-                className="flex items-start gap-3"
+                className="relative"
               >
-                <div className={cn(
-                  'mt-0.5 p-0.5 rounded-full',
-                  `bg-gradient-to-br ${gradient}`
-                )}>
-                  <Check className="h-4 w-4 text-white" />
+                <div 
+                  className="flex items-start gap-3 cursor-pointer"
+                  onClick={() => setExpandedFeature(expandedFeature === feature ? null : feature)}
+                >
+                  <div className={cn(
+                    'mt-0.5 p-0.5 rounded-full transition-all duration-300',
+                    `bg-gradient-to-br ${gradient}`,
+                    isHovered && 'shadow-lg'
+                  )}>
+                    <Check className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-neutral-300">{feature}</span>
+                  {featureDetails[feature] && (
+                    <ChevronDown 
+                      className={cn(
+                        "h-4 w-4 text-neutral-400 transition-transform duration-300",
+                        expandedFeature === feature && "transform rotate-180"
+                      )} 
+                    />
+                  )}
                 </div>
-                <span className="text-neutral-300">{feature}</span>
+                
+                <AnimatePresence>
+                  {expandedFeature === feature && featureDetails[feature] && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-7 mt-2 text-sm text-neutral-400 border-l-2 border-neutral-800 pl-4"
+                    >
+                      {featureDetails[feature]}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.li>
             ))}
           </ul>
 
-          {/* CTA Button */}
+          {/* Enhanced CTA Button */}
           <Button
             fullWidth
             variant={popular ? 'primary' : 'glass'}
             size="lg"
             onClick={() => router.push(name === 'Enterprise' ? '/contact' : '/signup')}
             className={cn(
-              'group',
-              popular && 'shadow-lg hover:shadow-xl'
+              'group transition-all duration-300',
+              popular && 'shadow-lg hover:shadow-xl',
+              isHovered && 'transform scale-105'
             )}
           >
             <span>{cta}</span>

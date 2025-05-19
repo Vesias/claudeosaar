@@ -8,7 +8,6 @@ import {
   FileSearch,
   GitBranch,
   Globe,
-  Key,
   Package,
   Play,
   Settings,

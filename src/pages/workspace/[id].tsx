@@ -12,7 +12,6 @@ import {
   Activity,
   GitBranch,
   Package,
-  Lock,
   Users,
   ChevronRight,
   Play,

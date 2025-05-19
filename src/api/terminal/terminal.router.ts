@@ -17,7 +17,7 @@ export function createTerminalRouter(
     // Extract workspace ID from URL
     const match = req.url?.match(/\/terminal\/(\w+)/);
     if (match) {
-      req.params = { workspaceId: match[1] };
+      (req as any).params = { workspaceId: match[1] };
       terminalHandler.handleConnection(ws, req);
     } else {
       ws.close();
@@ -38,7 +38,7 @@ export function createTerminalRouter(
         });
       }
 
-      res.json({
+      return res.json({
         status: 'available',
         websocketUrl: `/terminal/${workspaceId}`,
         container: {
@@ -47,7 +47,7 @@ export function createTerminalRouter(
         }
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: (error as Error).message });
     }
   });
 

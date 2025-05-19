@@ -6,7 +6,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links';
 import { WebglAddon } from 'xterm-addon-webgl';
 import 'xterm/css/xterm.css';
 import { ArrowLeft } from 'lucide-react';
-import { Button } from '../../components/ui/button';
+import { Button } from '@/components/ui/Button';
 
 export default function TerminalPage() {
   const router = useRouter();
@@ -72,7 +72,7 @@ export default function TerminalPage() {
     };
 
     ws.onerror = (error) => {
-      term.write(`\r\nError: ${error.message}\r\n`);
+      term.write(`\r\nError: ${(error as ErrorEvent).message || 'Connection failed'}\r\n`);
     };
 
     ws.onclose = () => {
@@ -138,7 +138,7 @@ export default function TerminalPage() {
                   }
                   router.push('/dashboard');
                 }}
-                variant="danger"
+                variant="destructive"
               >
                 Disconnect
               </Button>

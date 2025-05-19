@@ -7,7 +7,7 @@ export { Card, CardHeader, CardTitle, CardContent, CardFooter, cardVariants } fr
 export type { CardProps } from './Card';
 
 // Input exports
-export { Input, inputVariants } from './Input';
+export { Input } from './Input'; // Removed inputVariants as it's not exported from Input.tsx
 export type { InputProps } from './Input';
 
 // Badge exports
@@ -21,12 +21,11 @@ export type { TabsProps } from './Tabs';
 // Skeleton exports
 export { Skeleton, SkeletonText, SkeletonButton, SkeletonAvatar, SkeletonCard } from './Skeleton';
 
+// Label exports
+export { Label } from './Label';
+
 // Re-export commonly used components from existing files if they exist
 export { LoadingSpinner } from './LoadingSpinner';
-// export * from './button'; // Removed duplicate lowercase export
-// export * from './card';   // Removed duplicate lowercase export
 export * from './dialog';
 export * from './dropdown-menu';
 export * from './form';
-export * from './Input'; // Corrected casing
-// export * from './label'; // Removed missing module

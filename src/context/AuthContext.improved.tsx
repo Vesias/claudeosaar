@@ -187,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password
       });
       
-      const { user, token, refreshToken } = response.data;
+      const { token, refreshToken } = response.data;
       
       // Store tokens securely
       tokenManager.setToken(token);
@@ -206,7 +206,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const authError: AuthError = {
         code: 'LOGIN_FAILED',
         message: 'Invalid email or password',
-        details: error
+        details: undefined
       };
       
       if (axios.isAxiosError(error)) {
@@ -250,7 +250,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name
       });
       
-      const { user, token, refreshToken } = response.data;
+      const { token, refreshToken } = response.data;
       
       // Store tokens
       tokenManager.setToken(token);
@@ -269,7 +269,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const authError: AuthError = {
         code: 'REGISTRATION_FAILED',
         message: 'Registration failed',
-        details: error
+        details: undefined
       };
       
       if (axios.isAxiosError(error)) {

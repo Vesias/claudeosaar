@@ -43,7 +43,7 @@ export class WorkspaceController {
     }
   }
 
-  async getWorkspace(req: AuthRequest, res: Response) {
+  async getWorkspace(req: AuthRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const userId = req.user.id;
@@ -58,12 +58,12 @@ export class WorkspaceController {
         workspace.id
       );
 
-      res.json({
+      return res.json({
         workspace,
         container: containerInfo,
       });
     } catch (error) {
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
@@ -91,7 +91,7 @@ export class WorkspaceController {
     }
   }
 
-  async deleteWorkspace(req: AuthRequest, res: Response) {
+  async deleteWorkspace(req: AuthRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const userId = req.user.id;
@@ -108,13 +108,13 @@ export class WorkspaceController {
       // Delete workspace from database
       await this.workspaceService.delete(id, userId);
 
-      res.status(204).send();
+      return res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
-  async startWorkspace(req: AuthRequest, res: Response) {
+  async startWorkspace(req: AuthRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const userId = req.user.id;
@@ -129,16 +129,16 @@ export class WorkspaceController {
         workspace.id
       );
 
-      res.json({
+      return res.json({
         status: 'started',
         container,
       });
     } catch (error) {
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
-  async stopWorkspace(req: AuthRequest, res: Response) {
+  async stopWorkspace(req: AuthRequest, res: Response): Promise<Response> {
     try {
       const { id } = req.params;
       const userId = req.user.id;
@@ -151,11 +151,11 @@ export class WorkspaceController {
 
       await this.containerManager.stopContainer(workspace.id);
 
-      res.json({
+      return res.json({
         status: 'stopped',
       });
     } catch (error) {
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+      return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 }

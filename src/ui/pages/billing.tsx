@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
-import { Button } from '../components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { CheckCircle } from 'lucide-react';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!);

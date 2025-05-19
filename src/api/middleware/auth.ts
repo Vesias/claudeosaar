@@ -12,7 +12,7 @@ export interface JwtPayload {
 
 export type { AuthRequest };
 
-export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: AuthRequest, res: Response, next: NextFunction): Promise<Response | void> => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader?.replace('Bearer ', '');
@@ -40,7 +40,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
         email: user.email,
         name: user.name || user.email,
         role: 'user',
-        apiKey: user.apiKey,
+        apiKey: user.apiKey ?? undefined,
         subscription: {
           tier: user.subscriptionTier as 'free' | 'pro' | 'enterprise',
           limits: tierLimits[user.subscriptionTier as keyof typeof tierLimits] || tierLimits.free

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { Label } from '../../components/ui/Label';
 
 interface CreateWorkspaceModalProps {
   onClose: () => void;
@@ -15,7 +15,7 @@ export function CreateWorkspaceModal({ onClose, onCreate }: CreateWorkspaceModal
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     
@@ -59,7 +59,7 @@ export function CreateWorkspaceModal({ onClose, onCreate }: CreateWorkspaceModal
               id="name"
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
               placeholder="My AI Workspace"
               required
             />
@@ -71,7 +71,7 @@ export function CreateWorkspaceModal({ onClose, onCreate }: CreateWorkspaceModal
               id="apiKey"
               type="password"
               value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
               placeholder="sk-ant-..."
               required
             />

@@ -13,8 +13,8 @@ import {
   Settings,
   Info
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
 import axios from 'axios';
 
 interface SecurityEvent {

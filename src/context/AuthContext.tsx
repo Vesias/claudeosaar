@@ -15,6 +15,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
+  register: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => false,
+  register: async () => false,
   logout: () => {},
 });
 
@@ -136,6 +138,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (email: string, password: string, name: string): Promise<boolean> => {
+    try {
+      // For local development, accept any registration
+      if (process.env.NODE_ENV === 'development') {
+        const mockUser = {
+          id: Date.now().toString(),
+          email: email,
+          name: name,
+          role: 'user',
+          subscriptionTier: 'free' as 'free' | 'pro' | 'enterprise'
+        };
+        
+        localStorage.setItem('auth_token', 'mock_token_for_' + mockUser.id);
+        localStorage.setItem('auth_user', JSON.stringify(mockUser));
+        setUser(mockUser);
+        setToken('mock_token_for_' + mockUser.id);
+        return true;
+      }
+      
+      // Regular API registration
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('auth_token', data.token);
+        setUser(data.user);
+        setToken(data.token);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Registration error:', error);
+      return false;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('auth_token');
     setUser(null);
@@ -151,6 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         login,
+        register,
         logout,
       }}
     >

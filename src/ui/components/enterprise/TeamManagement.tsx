@@ -13,9 +13,9 @@ import {
   Eye,
   UserCheck
 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Badge } from '../ui/badge';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Badge } from '@/components/ui/Badge';
 import axios from 'axios';
 
 interface TeamMember {

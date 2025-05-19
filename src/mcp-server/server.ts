@@ -24,14 +24,14 @@ interface ToolResponse {
 
 export class MCPServer {
   private app: express.Application;
-  private ws: any;
+  private wsApp: any;
   private logger: Logger;
   private containerManager: ContainerManager;
   private port: number;
 
   constructor(port = 6602) {
     this.app = express();
-    this.ws = expressWs(this.app);
+    this.wsApp = expressWs(this.app);
     this.logger = new Logger('MCPServer');
     this.containerManager = new ContainerManager();
     this.port = port;
@@ -46,7 +46,7 @@ export class MCPServer {
     this.app.use(express.json());
     
     // Request logging
-    this.app.use((req, res, next) => {
+    this.app.use((req, _res, next) => {
       this.logger.info(`${req.method} ${req.path}`);
       next();
     });
@@ -54,12 +54,12 @@ export class MCPServer {
 
   private registerRoutes() {
     // Health check
-    this.app.get('/health', (req, res) => {
+    this.app.get('/health', (_req, res) => {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
     // List available tools
-    this.app.get('/tools', (req, res) => {
+    this.app.get('/tools', (_req, res) => {
       res.json(this.getAvailableTools());
     });
 
@@ -209,7 +209,7 @@ export class MCPServer {
   private async executeTerminalTool(action: string, params: ToolParams): Promise<ToolResponse> {
     switch (action) {
       case 'execute': {
-        const { workspaceId, command, cwd = '/' } = params;
+        const { workspaceId, command } = params;
         
         try {
           // Execute command in container
@@ -310,7 +310,7 @@ export class MCPServer {
     (this.app as any).ws('/terminal', (ws: any, req: any) => {
       const workspaceId = req.query.workspaceId as string;
       
-      ws.on('message', async (message) => {
+      ws.on('message', async (message: any) => {
         try {
           const data = JSON.parse(message.toString());
           

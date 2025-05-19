@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { WorkspaceCard } from '../components/WorkspaceCard';
 import { CreateWorkspaceModal } from '../components/CreateWorkspaceModal';
-import { Button } from '../components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Plus, RefreshCw } from 'lucide-react';
 
 interface Workspace {

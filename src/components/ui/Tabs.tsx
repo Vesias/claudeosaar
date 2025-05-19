@@ -133,14 +133,12 @@ const TabsContent = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement> & 
 
     return (
       <motion.div
-        ref={ref}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 10 }}
         transition={{ duration: 0.2 }}
         role="tabpanel"
         className={cn('mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', className)}
-        {...props}
       >
         {children}
       </motion.div>

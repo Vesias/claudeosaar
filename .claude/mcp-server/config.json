@@ -57,6 +57,20 @@
         "web_search",
         "web_fetch"
       ]
+    },
+    {
+      "name": "shadcn-ui",
+      "enabled": true,
+      "config": {
+        "url": "http://shadcn-ui-mcp:8080",
+        "framework": "react"
+      },
+      "autoApprove": [
+        "getComponent",
+        "getComponentDemo",
+        "getInstallScript",
+        "getFrameworkGuide"
+      ]
     }
   ],
   "security": {

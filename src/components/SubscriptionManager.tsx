@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
-  CreditCard,
   Check,
-  X,
-  ChevronRight,
   Download,
-  Calendar,
   TrendingUp,
-  UserPlus,
-  Shield,
-  Zap,
-  Star,
   AlertCircle,
-  Settings,
-  Clock
+  Settings
 } from 'lucide-react';
 
 interface Subscription {
@@ -190,9 +181,9 @@ export function SubscriptionManager() {
     setShowUpgradeModal(true);
   };
 
-  const handleCancel = () => {
-    setShowCancelModal(true);
-  };
+  // const handleCancel = () => {
+  //   setShowCancelModal(true);
+  // };
 
   if (loading) {
     return (
