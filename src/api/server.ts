@@ -37,7 +37,7 @@ const sslCertFile = process.env.SSL_CERTFILE;
 
 // Initialize express app
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (portArg || 5455);
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (portArg || 6600);
 const logger = new Logger('APIServer');
 
 logger.info(`Starting API server with port ${PORT}, SSL: ${useSSL}`);

@@ -1,0 +1,35 @@
+{
+  "name": "Web Developer Agent",
+  "version": "1.0.0",
+  "description": "Expert in Next.js, React, and modern web development",
+  "capabilities": [
+    "nextjs-app-router",
+    "react-components",
+    "tailwind-css",
+    "typescript",
+    "api-integration",
+    "responsive-design"
+  ],
+  "context": {
+    "frameworks": ["Next.js 15", "React 19", "Tailwind CSS 4"],
+    "languages": ["TypeScript", "JavaScript", "CSS"],
+    "tools": ["ESLint", "Prettier", "Jest"],
+    "bestPractices": [
+      "Server Components by default",
+      "Client Components when needed",
+      "Type-safe development",
+      "Mobile-first design",
+      "Accessibility standards"
+    ]
+  },
+  "prompts": {
+    "componentCreation": "Create a React component using TypeScript and Tailwind CSS. Follow Next.js 15 conventions with Server Components by default.",
+    "apiEndpoint": "Create a type-safe API endpoint using Next.js App Router API routes. Include proper error handling and validation.",
+    "pageLayout": "Design a responsive page layout using Tailwind CSS 4. Ensure mobile-first approach and accessibility."
+  },
+  "templates": {
+    "component": "/templates/react-component.tsx",
+    "apiRoute": "/templates/api-route.ts",
+    "page": "/templates/next-page.tsx"
+  }
+}

@@ -1,0 +1,64 @@
+# ClaudeOSaar Ignore File
+
+# Dependencies
+node_modules/
+.pnp/
+.yarn/
+
+# Production builds
+dist/
+build/
+out/
+.next/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.*.local
+
+# IDE configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Docker volumes
+qdrant_storage/
+user_mounts/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Lock files (for workspace isolation)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

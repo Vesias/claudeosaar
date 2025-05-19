@@ -44,12 +44,38 @@ cp .env.example .env
 
 4. Run development server
 ```bash
-# Start API server
+# Option 1: Run all services together (API, UI, MCP)
+npm run dev:all
+
+# Option 2: Run services separately
+# Terminal 1: Start API server
 npm run dev
 
-# Start UI development server (in a separate terminal)
+# Terminal 2: Start UI development server
 npm run dev:ui
+
+# Terminal 3: Start MCP server
+npm run dev:mcp
 ```
+
+5. Or use Docker for a complete environment
+```bash
+# Start all containers
+./start-containers.sh
+
+# Just run the development servers (without containers)
+npm run dev:all
+```
+
+## Local Development Ports
+
+ClaudeOSaar services run on the following ports by default:
+
+- API Server: http://localhost:6600
+- Frontend UI: http://localhost:6601
+- MCP Server: http://localhost:6602
+- Grafana (when using Docker): http://localhost:6603
+- A2A Coordinator (when using Docker): http://localhost:6604
 
 ## Project Structure
 

@@ -24,3 +24,5 @@ __pycache__/
 # Betriebssystem-Dateien
 .DS_Store
 Thumbs.db
+# Qdrant vector database storage
+qdrant_storage/

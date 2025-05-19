@@ -3,8 +3,8 @@
 # This script forcefully restarts the ClaudeOSaar application
 
 # Define ports
-API_PORT=5977
-UI_PORT=5978
+API_PORT=6600
+UI_PORT=6601
 
 echo "Forcefully cleaning up existing processes..."
 

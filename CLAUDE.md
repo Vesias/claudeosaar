@@ -1,165 +1,162 @@
-# ClaudeOSaar - AI Development Workspace OS
+# CLAUDE.md
 
-## 🚀 Vision & Purpose
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-ClaudeOSaar is a sovereign AI development workspace operating system designed for professional developers and AI agent builders. It provides isolated, containerized development environments with native Claude CLI integration, enabling rapid AI-powered software development.
+## Architecture Overview
 
-## 📚 Technology Research v2.0
+ClaudeOSaar is a sovereign AI development workspace OS that provides containerized development environments with native Claude CLI integration. The system follows a multi-tenant SaaS architecture with isolated user workspaces.
 
-Comprehensive research on cutting-edge technologies has been completed. See `.claude/researches/` for detailed documentation on:
-- Claude Code API & MCP Integration
-- Next.js 15 & Tailwind CSS 4
-- A2A Protocol & Agent Development Kit
-- LLaMA 3.2 with Vector Databases
-- Advanced RAG Systems
+### High-Level Architecture
 
-Latest tech stack documentation: `ai_docs/memory-bank/tech-stack-v2.0.md`
+1. **Frontend Layer**: Next.js 15 with App Router, React 19, Tailwind CSS 4
+2. **API Layer**: Dual backend with Node.js (TypeScript) and Python (FastAPI)  
+3. **Container Layer**: Docker-based workspace isolation with AppArmor security
+4. **AI Integration**: MCP Server protocol for Claude integration
+5. **Data Layer**: PostgreSQL + pgvector for embeddings, Redis for caching, Qdrant for vector search
 
-## 🏗️ System Architecture
+### Container Architecture
 
-### Core Components
-- **Containerized Workspaces**: Docker-based isolated environments per user
-- **Claude CLI Integration**: Native Anthropic Claude Code support
-- **MCP Server**: Model Context Protocol for enhanced AI capabilities
-- **Memory Bank**: Persistent context storage and retrieval system
-- **Multi-tenant Support**: User isolation with resource limits based on subscription tier
+Each user workspace runs in an isolated Docker container with:
+- Resource limits based on subscription tier (Free: 512MB/0.5CPU, Pro: 2GB/2CPU, Enterprise: 8GB/4CPU)
+- Persistent volume mounting at `/user_mounts/{user_id}/{workspace_id}`
+- AppArmor security profiles for container hardening
+- Network isolation via Docker networks
 
-### Directory Structure
-```
-.claude/                    # Claude workspace configuration
-├── agents/                 # AI agent templates and configurations
-├── commands/               # Custom Claude CLI commands
-├── mcp-server/            # MCP server integration
-├── profiles/              # User profiles and preferences
-├── projekts/              # Project management
-├── prompt-enhancer/       # Prompt optimization tools
-├── researches/            # Research context storage
-├── scripts/               # Automation scripts
-├── store/                 # State management
-└── vibe-coding/           # Vibe-based coding assistance
+### AI Integration Architecture
 
-ai_docs/                   # AI documentation
-└── memory-bank/           # Versioned context storage
+The system integrates with Claude through:
+- MCP (Model Context Protocol) server for tool execution
+- A2A Protocol for multi-agent communication (planned)
+- Custom agent templates in `.claude/agents/`
+- Prompt enhancement system in `.claude/prompt-enhancer/`
+- Memory Bank for persistent context storage
 
-src/                       # Source code
-├── api/                   # REST API endpoints
-├── billing/               # Subscription management
-├── containers/            # Container orchestration
-├── core/                  # Core business logic
-└── ui/                    # User interface components
-```
+## Common Development Commands
 
-## 🔧 Configuration
+### Development Servers
+```bash
+# Start API server (Node.js) on port 6600
+npm run dev
 
-### Claude API Setup
-```json
-{
-  "claude_api_key": "YOUR_CLAUDE_API_KEY",
-  "model": "claude-3-opus-20240229",
-  "max_tokens": 4096,
-  "temperature": 0.7
-}
+# Start Python API server (FastAPI) on port 6600
+npm run dev:python
+
+# Start Next.js UI on port 6601
+npm run dev:ui
+
+# Start all services concurrently
+npm run dev:all
+
+# Start MCP server separately
+npm run dev:mcp
 ```
 
-### Subscription Tiers
+### Building and Testing
+```bash
+# Build TypeScript API
+npm run build
+
+# Build Next.js UI
+npm run build:ui
+
+# Run tests
+npm test
+
+# Lint TypeScript/React code
+npm run lint
+
+# Type check without emitting
+npm run typecheck
+```
+
+### Docker Container Management
+```bash
+# Build Docker containers
+npm run docker:build
+
+# Start containers
+npm run docker:up
+
+# Stop containers
+npm run docker:down
+
+# Start containers with script (includes checks)
+./start-containers.sh
+
+# Start individual workspace container
+.claude/scripts/start-container.sh <user_id> <workspace_id> <api_key> <tier>
+```
+
+### Release Management
+```bash
+# Generate next release plan
+npm run release
+
+# Run CLI commands
+npm run cli
+```
+
+## Development Workflows
+
+### Running Tests
+- Jest is configured for unit testing
+- Run all tests: `npm test`
+- Run tests in watch mode: `npm test -- --watch`
+- Run tests for a specific file: `npm test -- --testPathPattern="filename"`
+
+### Working with the MCP Server
+1. The MCP server runs on port 6602 by default
+2. Configuration is in `.claude/mcp-server/config.json`
+3. Start with `./dev-mcp.sh` or `npm run dev:mcp`
+
+### Managing User Workspaces
+1. Workspaces are created with: `.claude/scripts/start-container.sh`
+2. Each workspace gets isolated storage at `/user_mounts/{user_id}/{workspace_id}`
+3. Resource limits are applied based on subscription tier
+
+## Key Project Components
+
+### API Endpoints
+- `/api/workspace/create` - Create new workspace
+- `/api/workspace/{id}` - Get workspace details
+- `/api/workspace/{id}` - Delete workspace
+- `/api/memory-bank/store` - Store context
+- `/api/memory-bank/retrieve` - Retrieve context
+- `/api/memory-bank/search` - Search stored context
+
+### Frontend Structure
+- Pages in `src/pages/` using Next.js Pages Router
+- Components in `src/components/`
+- Context providers in `src/context/`
+- Authentication via `withAuth` HOC
+
+### Configuration Files
+- `.claude/mcp-server/config.json` - MCP server configuration
+- `.claude/agents/*.json` - Agent templates
+- `.claude/prompt-enhancer/config.json` - Prompt enhancement rules
+
+## Security Considerations
+
+- API keys are stored as environment variables
+- AppArmor profiles are enforced on containers (`containers/security/apparmor/`)
+- Network isolation between user workspaces
+- Resource limits prevent abuse
+
+## Subscription Tiers
+
 - **Free**: 512MB RAM, 0.5 CPU, 5GB storage
-- **Pro** ($21.99/mo): 2GB RAM, 2 CPU, 50GB storage
-- **Enterprise**: 8GB RAM, 4 CPU, 100GB storage, multi-agent support
+- **Pro**: €13.99/mo - 2GB RAM, 2 CPU, 50GB storage
+- **Enterprise**: €21.99/mo - 8GB RAM, 4 CPU, 100GB storage, multi-agent support
 
-## 🚀 Quick Start
+## Memory Bank and Context Storage
 
-1. Clone the repository
-2. Set up environment variables
-3. Run container initialization:
-   ```bash
-   ./claude/scripts/start-container.sh <user_id> <workspace_id> <api_key> <tier>
-   ```
+The Memory Bank system (`ai_docs/memory-bank/`) stores:
+- Development progress tracking
+- Release planning documents
+- Technology research summaries
+- Plugin system documentation
 
-## 🛠️ Development Workflow
-
-1. **Create Workspace**: Isolated container with Claude CLI
-2. **Configure Claude**: API key and preferences
-3. **Initialize Project**: Use templates or start fresh
-4. **Code with AI**: Leverage Claude for development
-5. **Deploy**: Export or integrate with CI/CD
-
-## 📚 API Documentation
-
-### Core Endpoints
-- `POST /api/workspace/create` - Create new workspace
-- `GET /api/workspace/{id}` - Get workspace details
-- `DELETE /api/workspace/{id}` - Remove workspace
-- `POST /api/memory-bank/store` - Store context
-- `GET /api/memory-bank/retrieve` - Retrieve context
-
-## 🔒 Security
-
-- API key encryption at rest
-- Container isolation with namespaces
-- Network policies for workspace separation
-- Resource limits enforced by tier
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push to branch
-5. Create Pull Request
-
-## 📝 License
-
-MIT License - see LICENSE file for details
-
-## 🆘 Support
-
-- Documentation: https://docs.claudeosaar.saarland
-- Issues: https://github.com/claudeosaar/claudeosaar/issues
-- Email: support@claudeosaar.saarland
-
----
-
-### ClaudeOSaar Bootstrap Command 🧠
-
-Du bist Claude Code CLI im embedded Container (Docker-based) mit vollen Rechten zur Codeanalyse, Umbauplanung und MCP-Orchestrierung. 
-
-🆘 SYSTEM-KONTEXT:
-- Projektname: ClaudeOSaar
-- Workspace: /workspace/claudeosaar
-- Ziel: Hochsicherer, containerisierter AI Workspace für Entwickler, Researcher, Behörden & Unternehmen
-- Subscription Pricing: 13.99 € / 21.99 € / Enterprise
-- Multi-User mit Container-Isolation + Billing + Embedded TTY Terminal
-- Tools: MCP / A2A / Claude CLI / Llama 3.2 / pgvector / LangGraph / ADK / Tailwind 4 / Next.js 15
-
-🧩 BEGINNAKTIONEN:
-1. Verarbeite:
-   - `.claude/researches/**.md` für Technologieverständnis
-   - `ai_docs/memory-bank/tech-stack-v2.0.md` für Architekturbasis
-   - `.claude/mcp-server/config.json` zur Toolverknüpfung
-   - `.claude/scripts/start-container.sh` zur CI-Kontext-Evaluation
-
-2. Output:
-   - <startup_log> (Initialanalyse + Status)
-   - <next_milestone> (empfohlener Subtask)
-   - <fixes_or_refactors> (was technisch noch verbessert werden kann)
-
-🔧 ZIELE:
-- [ ] Erstelle einen ClaudeOSaar-CLI-Baum für agiles Arbeiten
-- [ ] Mache systemweite Vorschläge (Security, UX, Promptstruktur)
-- [ ] Generiere `.claude/commands/next-release-planner.ts`
-- [ ] Füge nächste Roadmap-Einträge in `memory-bank/progress.md` ein
-- [ ] Validiere MCP Server + Container Health
-- [ ] Bereite SaaS Workspace mit Benutzerisolierung vor
-
-📦 MCP-Kontext aktivieren: Nutze Kontext7, Fetch, FileSystem, BrowserTools, SQLite
-📦 Trigger: All research summaries sind freigegeben zur Verarbeitung
-
-🔐 DEIN API-ZUGRIFF:
-- Nutze vorhandene Containerzugriffe für Claude Code
-- API Keys: `.env`, `.claude.config.json` im Container
-- RAG Pipeline: Zugriff auf pgvector & embeddings vorhanden
-
-✅ STARTE NUN DEN SYSTEMAUFBAU und gib nach jedem Block ein <done>, <refactor> oder <issue> zurück.
-
-Built with ❤️ for AI developers by the ClaudeOSaar team
-🤖 Powered by Claude Code
+Access patterns:
+- Store: `POST /api/memory-bank/store`
+- Retrieve: `GET /api/memory-bank/retrieve`
+- Search: `GET /api/memory-bank/search`

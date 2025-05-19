@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "enhancers": [
+    {
+      "name": "clarity",
+      "description": "Improves prompt clarity and specificity",
+      "rules": [
+        {
+          "pattern": "create a (.+)",
+          "replacement": "Create a {1} with the following specifications:",
+          "description": "Add structure to creation requests"
+        },
+        {
+          "pattern": "fix the (.+)",
+          "replacement": "Debug and fix the {1}. Identify the issue, explain the root cause, and provide a solution:",
+          "description": "Structure debugging requests"
+        }
+      ]
+    },
+    {
+      "name": "context",
+      "description": "Adds relevant context to prompts",
+      "autoInclude": [
+        "Consider the project's technology stack",
+        "Follow established coding conventions",
+        "Ensure type safety where applicable"
+      ]
+    },
+    {
+      "name": "output-format",
+      "description": "Specifies desired output format",
+      "templates": {
+        "code": "Provide the solution as properly formatted code with syntax highlighting.",
+        "explanation": "Include detailed explanations with your code.",
+        "step-by-step": "Break down the solution into clear, numbered steps.",
+        "comparison": "Compare multiple approaches and recommend the best one."
+      }
+    }
+  ],
+  "workflows": [
+    {
+      "name": "feature-development",
+      "steps": [
+        "Understand requirements",
+        "Design architecture",
+        "Implement solution",
+        "Add tests",
+        "Document changes"
+      ],
+      "prompts": {
+        "requirements": "What feature are you building? Describe the user story and acceptance criteria.",
+        "architecture": "Design the technical architecture. Consider scalability, maintainability, and existing patterns.",
+        "implementation": "Implement the feature following our coding standards. Use TypeScript and include error handling.",
+        "testing": "Write comprehensive tests for the feature. Include unit tests and integration tests where needed.",
+        "documentation": "Document the feature including API endpoints, configuration options, and usage examples."
+      }
+    }
+  ]
+}

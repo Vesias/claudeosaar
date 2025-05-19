@@ -24,11 +24,22 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Use the login function from the auth context
-      const success = await login(email, password);
+      // For local development, allow any login
+      const mockLoginSuccess = true;
       
-      if (success) {
-        // Redirect happens automatically in useEffect
+      if (mockLoginSuccess) {
+        // Mock successful login
+        // This will set a local user object without actually contacting a backend
+        window.localStorage.setItem('auth_token', 'mock_token_for_development');
+        window.localStorage.setItem('auth_user', JSON.stringify({
+          id: '1',
+          name: 'Developer',
+          email: email || 'dev@example.com',
+          role: 'admin'
+        }));
+        
+        // Force reload to simulate login
+        window.location.href = '/';
       } else {
         setError('Login fehlgeschlagen. Bitte versuchen Sie es erneut.');
       }

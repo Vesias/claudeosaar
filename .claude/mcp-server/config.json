@@ -1,0 +1,66 @@
+{
+  "port": 6602,
+  "host": "localhost",
+  "tools": [
+    {
+      "name": "filesystem",
+      "enabled": true,
+      "config": {
+        "allowedDirectories": ["./"]
+      }
+    },
+    {
+      "name": "terminal",
+      "enabled": true,
+      "config": {
+        "allowedCommands": ["*"]
+      }
+    },
+    {
+      "name": "memory-bank",
+      "enabled": true,
+      "config": {
+        "storagePath": "./ai_docs/memory-bank"
+      }
+    },
+    {
+      "name": "context7",
+      "enabled": true,
+      "autoApprove": [
+        "resolve-library-id",
+        "get-library-docs"
+      ]
+    },
+    {
+      "name": "sequentialthinking",
+      "enabled": true,
+      "autoApprove": [
+        "sequential_thinking"
+      ]
+    },
+    {
+      "name": "qdrant",
+      "enabled": true,
+      "config": {
+        "url": "http://localhost:6333",
+        "collection": "default_qdrant_collection"
+      },
+      "autoApprove": [
+        "qdrant-store",
+        "qdrant-find"
+      ]
+    },
+    {
+      "name": "websearch",
+      "enabled": true,
+      "autoApprove": [
+        "web_search",
+        "web_fetch"
+      ]
+    }
+  ],
+  "security": {
+    "allowLocalHostOnly": true,
+    "requireAuthentication": false
+  }
+}

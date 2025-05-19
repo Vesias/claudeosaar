@@ -1,0 +1,37 @@
+# ClaudeOSaar Workspace Rules
+
+## Default Behavior
+- Always use TypeScript for new files
+- Follow Next.js App Router conventions
+- Use Tailwind CSS for styling
+- Implement proper error handling
+- Add unit tests for new functionality
+- Document complex logic with comments
+
+## Code Style
+- Use 2 spaces for indentation
+- Use single quotes for strings
+- Use async/await over promises
+- Prefer functional components in React
+- Use proper TypeScript types (avoid 'any')
+
+## Security
+- Never commit API keys or secrets
+- Validate all user inputs
+- Use environment variables for configuration
+- Apply CORS policies properly
+- Implement rate limiting on endpoints
+
+## Directory Convention
+- /src/api - Backend API logic
+- /src/components - React components
+- /src/pages - Next.js pages
+- /src/lib - Utility functions
+- /src/types - TypeScript type definitions
+
+## Git Workflow
+- Use conventional commits
+- Create feature branches
+- Add meaningful commit messages
+- Run tests before committing
+- Update documentation as needed

@@ -37,30 +37,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check if user is already logged in
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem('auth_token');
-      if (storedToken) {
-        try {
-          const response = await fetch('/api/auth/verify', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ token: storedToken }),
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setUser(data.user);
-            setToken(storedToken);
+      try {
+        // For local development, check for mock token
+        const storedToken = localStorage.getItem('auth_token');
+        
+        if (storedToken) {
+          if (storedToken === 'mock_token_for_development') {
+            // Load mock user from localStorage
+            const mockUserStr = localStorage.getItem('auth_user');
+            if (mockUserStr) {
+              try {
+                const mockUser = JSON.parse(mockUserStr);
+                setUser(mockUser);
+                setToken(storedToken);
+              } catch (e) {
+                console.error('Error parsing mock user:', e);
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_token');
+              }
+            }
           } else {
-            // Token is invalid or expired
-            localStorage.removeItem('auth_token');
+            // Regular token verification
+            try {
+              const response = await fetch('/api/auth/verify', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: storedToken }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                setUser(data.user);
+                setToken(storedToken);
+              } else {
+                // Token is invalid or expired
+                localStorage.removeItem('auth_token');
+              }
+            } catch (error) {
+              console.error('Auth verification error:', error);
+              localStorage.removeItem('auth_token');
+            }
           }
-        } catch (error) {
-          console.error('Auth initialization error:', error);
-          localStorage.removeItem('auth_token');
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
       }
+      
       setIsLoading(false);
     };
 
@@ -69,6 +95,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
+      // For local development, accept any login
+      if (process.env.NODE_ENV === 'development') {
+        const mockUser = {
+          id: '1',
+          email: email || 'dev@example.com',
+          name: email.split('@')[0] || 'Developer',
+          role: 'admin'
+        };
+        
+        localStorage.setItem('auth_token', 'mock_token_for_development');
+        localStorage.setItem('auth_user', JSON.stringify(mockUser));
+        setUser(mockUser);
+        setToken('mock_token_for_development');
+        return true;
+      }
+      
+      // Regular API login
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {

@@ -6,8 +6,8 @@
 echo "Cleaning up existing processes..."
 
 # Kill processes using the specific ports
-kill $(lsof -t -i:5455) 2>/dev/null || true
-kill $(lsof -t -i:3456) 2>/dev/null || true
+kill $(lsof -t -i:6600) 2>/dev/null || true
+kill $(lsof -t -i:6601) 2>/dev/null || true
 
 # Kill by command pattern
 pkill -f "tsx watch src/api/server.ts" || true
@@ -25,8 +25,8 @@ npm run dev:ui &
 UI_PID=$!
 
 echo "ClaudeOSaar is running!"
-echo "API Server: http://localhost:5977"
-echo "Dashboard UI: http://localhost:5978"
+echo "API Server: http://localhost:6600"
+echo "Dashboard UI: http://localhost:6601"
 echo ""
 echo "Press Ctrl+C to stop both servers"
 

@@ -1,0 +1,37 @@
+{
+  "name": "Backend Engineer Agent",
+  "version": "1.0.0",
+  "description": "Specialist in Node.js, FastAPI, and cloud architecture",
+  "capabilities": [
+    "nodejs-development",
+    "fastapi-python",
+    "database-design",
+    "api-architecture",
+    "microservices",
+    "cloud-deployment"
+  ],
+  "context": {
+    "languages": ["TypeScript", "Python", "SQL"],
+    "frameworks": ["Express.js", "FastAPI", "Prisma"],
+    "databases": ["PostgreSQL", "Redis", "MongoDB"],
+    "cloud": ["Docker", "Kubernetes", "AWS"],
+    "bestPractices": [
+      "RESTful API design",
+      "GraphQL when appropriate",
+      "Authentication & Authorization",
+      "Rate limiting",
+      "Caching strategies",
+      "Database optimization"
+    ]
+  },
+  "prompts": {
+    "apiDesign": "Design a RESTful API with proper authentication, rate limiting, and error handling. Use TypeScript for type safety.",
+    "databaseSchema": "Create an optimized database schema with proper indexes and relationships. Consider scalability.",
+    "microservice": "Design a microservice architecture with clear boundaries and communication patterns."
+  },
+  "templates": {
+    "expressApi": "/templates/express-api.ts",
+    "fastapiService": "/templates/fastapi-service.py",
+    "dockerConfig": "/templates/dockerfile"
+  }
+}
