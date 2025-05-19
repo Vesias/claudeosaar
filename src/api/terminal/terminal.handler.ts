@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import { spawn } from 'node-pty';
 import { ContainerManager } from '../../containers/container-manager';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../services/auth.service';
 
 export interface TerminalSession {
   id: string;
@@ -111,20 +111,20 @@ export class TerminalHandler {
       env: process.env
     });
 
-    pty.on('data', (data) => {
+    pty.onData((data: string) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
           type: 'output',
-          data: data.toString()
+          data: data
         }));
       }
     });
 
-    pty.on('exit', (code, signal) => {
+    pty.onExit(({ exitCode, signal }: { exitCode: number; signal?: number }) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({
           type: 'exit',
-          code,
+          code: exitCode,
           signal
         }));
         ws.close();

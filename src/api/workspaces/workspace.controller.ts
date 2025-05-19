@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { WorkspaceService } from './workspace.service';
 import { ContainerManager } from '../../containers/container-manager';
 import { AuthRequest } from '../auth/types';
@@ -39,7 +39,7 @@ export class WorkspaceController {
         },
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
@@ -63,7 +63,7 @@ export class WorkspaceController {
         container: containerInfo,
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
@@ -87,7 +87,7 @@ export class WorkspaceController {
 
       res.json(workspacesWithContainers);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
@@ -110,7 +110,7 @@ export class WorkspaceController {
 
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
@@ -134,7 +134,7 @@ export class WorkspaceController {
         container,
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 
@@ -155,7 +155,7 @@ export class WorkspaceController {
         status: 'stopped',
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   }
 }

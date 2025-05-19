@@ -11,8 +11,10 @@ const workspaceService = new WorkspaceService();
 const containerManager = new ContainerManager();
 const workspaceController = new WorkspaceController(workspaceService, containerManager);
 
-// All routes require authentication
-router.use(authMiddleware);
+// All routes require authentication (using next() to handle async middleware)
+router.use((req, res, next) => {
+  authMiddleware(req, res, next).catch(next);
+});
 
 // Workspace CRUD operations
 router.post('/', (req: Request, res: Response) => workspaceController.createWorkspace(req as AuthRequest, res));

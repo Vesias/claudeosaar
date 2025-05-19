@@ -23,8 +23,8 @@ export { Skeleton, SkeletonText, SkeletonButton, SkeletonAvatar, SkeletonCard } 
 
 // Re-export commonly used components from existing files if they exist
 export { LoadingSpinner } from './LoadingSpinner';
-export * from './button';
-export * from './card';
+// export * from './button'; // Removed duplicate lowercase export
+// export * from './card';   // Removed duplicate lowercase export
 export * from './dialog';
 export * from './dropdown-menu';
 export * from './form';
