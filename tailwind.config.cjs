@@ -109,9 +109,9 @@ module.exports = {
         ring: '#3b82f6',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['Space Grotesk', 'Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Inter', 'sans-serif'], // Primary font from CDN, then generic fallback
+        display: ['Space Grotesk', 'sans-serif'], // Primary font from CDN, then generic fallback
+        mono: ['JetBrains Mono', 'monospace'], // Primary font from CDN, then generic fallback
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

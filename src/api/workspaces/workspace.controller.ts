@@ -27,7 +27,7 @@ export class WorkspaceController {
         workspaceId: workspace.id,
         userId,
         tier,
-        apiKey: req.user.apiKey,
+        apiKey: req.user.apiKey || 'test-api-key',
       });
 
       res.status(201).json({

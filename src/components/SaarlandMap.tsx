@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import 'leaflet/dist/leaflet.css'; // Import Leaflet CSS here
 import { MapPin, Users, Square, Activity } from 'lucide-react';
 
 interface DistrictData {
@@ -12,9 +13,9 @@ interface DistrictData {
 }
 
 const SaarlandMap: React.FC = () => {
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<any>(null); // Will store the Leaflet map instance
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
+  // const [mapLoaded, setMapLoaded] = useState(false); // mapLoaded state might not be needed for init logic
 
   // District data with accurate centers
   const districtData: Record<string, DistrictData> = {
@@ -69,49 +70,52 @@ const SaarlandMap: React.FC = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !mapLoaded) {
-      // Dynamic imports for client-side only
-      Promise.all([
-        import('leaflet'),
-        import('leaflet/dist/leaflet.css')
-      ]).then(([L]) => {
-        const leaflet = L.default || L;
+    let mapInstance: any = null; // L.Map type would be better if L is typed
+
+    if (typeof window !== 'undefined' && !mapRef.current) { // Check if mapRef already has an instance
+      // Dynamic import for leaflet JS only
+      import('leaflet').then((LModule) => {
+        const L = LModule.default || LModule; // Handle default export
         
-        // Initialize the map
-        const map = leaflet.map('saarland-map', {
+        // Check if the container already has a map
+        const mapContainer = document.getElementById('saarland-map');
+        if (mapContainer && (mapContainer as any)._leaflet_id) {
+          // If it already has a map, don't initialize again
+          // This can happen with Fast Refresh. The cleanup should handle it,
+          // but this is an extra guard.
+          mapRef.current = (mapContainer as any)._leaflet_map; // try to get existing instance
+          return;
+        }
+
+        mapInstance = L.map('saarland-map', {
           scrollWheelZoom: false,
           zoomControl: true
         }).setView([49.383, 7.023], 9);
 
-        // Add OSM tiles with dark theme
-        leaflet.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
           subdomains: 'abcd',
           maxZoom: 20
-        }).addTo(map);
+        }).addTo(mapInstance);
 
-        // Add district markers with circles
         Object.entries(districtData).forEach(([name, district]) => {
-          // Add circle for district area representation
-          const circle = leaflet.circle(district.center, {
+          const circle = L.circle(district.center, {
             color: district.color,
             fillColor: district.color,
             fillOpacity: 0.3,
             radius: Math.sqrt(district.area) * 500,
             weight: 2
-          }).addTo(map);
+          }).addTo(mapInstance);
 
-          // Add marker for district center
-          const marker = leaflet.marker(district.center, {
-            icon: leaflet.divIcon({
+          const marker = L.marker(district.center, {
+            icon: L.divIcon({
               className: 'custom-marker',
               html: `<div style="background-color: ${district.color}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
               iconSize: [20, 20],
               iconAnchor: [10, 10]
             })
-          }).addTo(map);
+          }).addTo(mapInstance);
 
-          // Create popup content
           const popupContent = `
             <div class="p-4 min-w-[200px]">
               <h3 class="font-bold text-lg mb-2">${district.name}</h3>
@@ -128,27 +132,16 @@ const SaarlandMap: React.FC = () => {
               </div>
             </div>
           `;
-
           marker.bindPopup(popupContent);
           circle.bindPopup(popupContent);
 
-          // Add hover effects
           const highlightFeature = () => {
-            circle.setStyle({
-              fillOpacity: 0.6,
-              weight: 3
-            });
+            circle.setStyle({ fillOpacity: 0.6, weight: 3 });
             setSelectedDistrict(name);
           };
-
           const resetHighlight = () => {
-            circle.setStyle({
-              fillOpacity: 0.3,
-              weight: 2
-            });
-            if (selectedDistrict === name) {
-              setSelectedDistrict(null);
-            }
+            circle.setStyle({ fillOpacity: 0.3, weight: 2 });
+            // setSelectedDistrict(null); // Avoid resetting if another feature is hovered quickly
           };
 
           circle.on('mouseover', highlightFeature);
@@ -156,12 +149,22 @@ const SaarlandMap: React.FC = () => {
           marker.on('mouseover', highlightFeature);
           marker.on('mouseout', resetHighlight);
         });
-
-        mapRef.current = map;
-        setMapLoaded(true);
+        mapRef.current = mapInstance;
       });
     }
-  }, [mapLoaded]);
+
+    // Cleanup function
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+      // If mapInstance was assigned directly (not through ref immediately)
+      // else if (mapInstance) { 
+      //   mapInstance.remove();
+      // }
+    };
+  }, []); // Empty dependency array ensures this runs only on mount and unmount
 
   // Calculate totals
   const totals = Object.values(districtData).reduce(

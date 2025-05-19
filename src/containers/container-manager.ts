@@ -37,6 +37,10 @@ export class ContainerManager {
       name: containerName,
       Image: `${this.imageBase}:latest`,
       Env: env,
+      ExposedPorts: {
+        '22/tcp': {},
+        '8080/tcp': {}, // Terminal port
+      },
       HostConfig: {
         Binds: binds,
         Memory: limits.memory,
@@ -47,16 +51,18 @@ export class ContainerManager {
           Name: 'unless-stopped',
         },
         SecurityOpt: ['apparmor=claudeosaar-container-profile'],
-      },
-      ExposedPorts: {
-        '22/tcp': {},
-        '8080/tcp': {}, // Terminal port
-      },
-      HostConfig: {
         PortBindings: {
           '22/tcp': [{ HostPort: '0' }],
           '8080/tcp': [{ HostPort: '0' }],
         },
+      },
+      Labels: {
+        'claudeosaar.workspace': workspaceId,
+        'claudeosaar.user': userId,
+        'claudeosaar.tier': tier,
+        'claudeosaar.memory': limits.memory.toString(),
+        'claudeosaar.cpus': limits.cpus.toString(),
+        'claudeosaar.storage': limits.storage.toString(),
       },
     });
 
@@ -116,7 +122,7 @@ export class ContainerManager {
     }
   }
 
-  async startContainer(workspaceId: string): Promise<ContainerInfo> {
+  async startContainer(workspaceId: string): Promise<ContainerInfo | null> {
     const containerName = `claudeos_${workspaceId}`;
     const container = this.docker.getContainer(containerName);
     

@@ -20,9 +20,9 @@ import { Logger } from '../utils/logger';
 // import onboardingRoutes from './routes/onboarding';
 // import pluginsRoutes from './routes/plugins';
 // import metricsRoutes from './routes/metrics';
-// import workspacesRoutes from './routes/workspaces';
+import workspacesRoutes from './routes/workspaces';
 // import adminRoutes from './routes/admin';
-// import authRoutes from './routes/auth';
+import authRoutes from './routes/auth';
 
 // Get command line arguments
 const args = process.argv.slice(2);
@@ -102,14 +102,19 @@ app.use(
   })
 );
 
+// Custom request interface
+interface CustomRequest extends express.Request {
+  id?: string;
+}
+
 // Add request ID for tracking requests
-app.use((req, res, next) => {
+app.use((req: CustomRequest, res, next) => {
   req.id = uuidv4();
   next();
 });
 
 // Basic request logging
-app.use((req, res, next) => {
+app.use((req: CustomRequest, res, next) => {
   logger.info(`[${req.id}] ${req.method} ${req.url}`);
   
   // Log response status when done
@@ -202,43 +207,14 @@ app.use((req, res, next) => {
 });
 
 // API Routes
-// app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 // app.use('/api/onboarding', onboardingRoutes);
 // app.use('/api/plugins', pluginsRoutes);
 // app.use('/api/metrics', metricsRoutes);
-// app.use('/api/workspaces', workspacesRoutes);
+app.use('/api/workspaces', workspacesRoutes);
 // app.use('/api/admin', adminRoutes);
 
-// Add basic authentication routes for development
-app.post('/api/auth/verify', (req, res) => {
-  const { token } = req.body;
-  if (token === 'mock_token_for_development') {
-    res.json({
-      user: {
-        id: '1',
-        email: 'dev@example.com',
-        name: 'Developer',
-        role: 'admin'
-      }
-    });
-  } else {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-});
-
-app.post('/api/auth/login', (req, res) => {
-  // For development, accept any login
-  const { email } = req.body;
-  res.json({
-    token: 'mock_token_for_development',
-    user: {
-      id: '1',
-      email: email || 'dev@example.com',
-      name: email ? email.split('@')[0] : 'Developer',
-      role: 'admin'
-    }
-  });
-});
+// Mock routes removed - using real auth service now
 
 // Health check
 app.get('/health', (req, res) => {
@@ -246,7 +222,7 @@ app.get('/health', (req, res) => {
 });
 
 // Error handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, req: CustomRequest, res: express.Response, next: express.NextFunction) => {
   logger.error(`[${req.id}] API Error:`, err);
   res.status(500).json({
     success: false,

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: claudeosaar-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: devpassword
+      POSTGRES_DB: claudeosaar
+    ports:
+      - "15432:5432"  # Using a different port to avoid conflict
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - claudeosaar-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: claudeosaar-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "16379:6379"
+    volumes:
+      - ./volumes/redis:/data
+    networks:
+      - claudeosaar-network
+
+networks:
+  claudeosaar-network:
+    driver: bridge

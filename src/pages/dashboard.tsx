@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { withAuth } from '@/components/withAuth'
 import { useAuth } from '@/context/AuthContext'
 import { motion } from 'framer-motion'
@@ -33,8 +34,12 @@ import {
   Star,
   TrendingUp,
   ArrowUpRight,
-  MoreVertical
+  MoreVertical,
+  Sparkles
 } from 'lucide-react'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
 
 interface Workspace {
   id: string
@@ -67,13 +72,20 @@ interface DashboardStats {
 
 const statusColors = {
   running: 'text-green-400 border-green-400/20 bg-green-400/10',
-  stopped: 'text-gray-400 border-gray-400/20 bg-gray-400/10', 
+  stopped: 'text-neutral-400 border-neutral-400/20 bg-neutral-400/10', 
   pending: 'text-yellow-400 border-yellow-400/20 bg-yellow-400/10',
   error: 'text-red-400 border-red-400/20 bg-red-400/10'
 }
 
+const tierGradients = {
+  free: 'from-neutral-600 to-neutral-800',
+  pro: 'from-primary-600 to-accent-600',
+  enterprise: 'from-accent-600 to-accent-800'
+}
+
 function Dashboard() {
   const { user, logout } = useAuth()
+  const router = useRouter()
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [stats, setStats] = useState<DashboardStats>({
     totalWorkspaces: 0,
@@ -93,7 +105,6 @@ function Dashboard() {
 
   const fetchData = async () => {
     try {
-      // Mock data for development
       const mockWorkspaces: Workspace[] = [
         {
           id: '1',
@@ -154,8 +165,8 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-        <div className="animate-pulse text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="animate-pulse text-3xl font-bold bg-gradient-to-r from-primary-400 via-accent-400 to-pink-400 bg-clip-text text-transparent">
           Loading Dashboard...
         </div>
       </div>
@@ -163,42 +174,39 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-neutral-950">
       {/* Header */}
-      <header className="border-b border-white/10 bg-gray-900/50 backdrop-blur-xl sticky top-0 z-50">
+      <header className="border-b border-white/5 bg-neutral-900/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <Terminal className="w-8 h-8 text-blue-400" />
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <div className="relative">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-primary-600 to-accent-600 rounded-lg blur opacity-25 animate-pulse"></div>
+                  <Globe className="relative w-8 h-8 text-primary-500" />
+                </div>
+                <span className="text-xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent font-display">
                   ClaudeOSaar
                 </span>
               </Link>
-              <ChevronRight className="w-5 h-5 text-gray-600" />
+              <ChevronRight className="w-5 h-5 text-neutral-600" />
               <h1 className="text-xl font-semibold text-white">Dashboard</h1>
             </div>
 
             <div className="flex items-center gap-4">
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors relative">
-                <Bell className="w-5 h-5 text-gray-400" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-              </button>
+              <Button variant="glass" size="icon" className="relative">
+                <Bell className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-accent-500 rounded-full border-2 border-neutral-900"></span>
+              </Button>
               
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <div className="text-sm font-medium text-white">{user?.name || user?.email}</div>
-                  <div className="text-xs text-gray-400 capitalize">{user?.subscriptionTier} Plan</div>
+                  <div className="text-xs text-neutral-400 capitalize">{user?.subscriptionTier} Plan</div>
                 </div>
-                <div className="relative">
-                  <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold">
-                        {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
-                      </span>
-                    </div>
-                  </button>
-                </div>
+                <Badge variant="primary" className="w-10 h-10 p-0 rounded-full flex items-center justify-center text-lg font-semibold">
+                  {user?.name?.[0] || user?.email?.[0]?.toUpperCase()}
+                </Badge>
               </div>
             </div>
           </div>
@@ -207,7 +215,7 @@ function Dashboard() {
 
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 border-r border-white/10 bg-gray-900/50 backdrop-blur-xl min-h-screen">
+        <aside className="w-64 border-r border-white/5 bg-neutral-900/50 backdrop-blur-xl min-h-screen">
           <nav className="p-4">
             <ul className="space-y-2">
               {[
@@ -224,10 +232,10 @@ function Dashboard() {
                 <li key={idx}>
                   <Link
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all ${
                       item.active
-                        ? 'bg-blue-500/20 text-blue-400 border-l-2 border-blue-400'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        ? 'bg-gradient-to-r from-primary-600/20 to-accent-600/20 text-primary-400 border-l-2 border-primary-400'
+                        : 'text-neutral-400 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     <item.icon className="w-5 h-5" />
@@ -238,14 +246,16 @@ function Dashboard() {
             </ul>
           </nav>
 
-          <div className="p-4 border-t border-white/10">
-            <button
+          <div className="p-4 border-t border-white/5">
+            <Button
+              variant="ghost"
               onClick={logout}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+              fullWidth
+              leftIcon={<LogOut className="w-5 h-5" />}
+              className="justify-start"
             >
-              <LogOut className="w-5 h-5" />
-              <span className="font-medium">Logout</span>
-            </button>
+              Logout
+            </Button>
           </div>
         </aside>
 
@@ -256,76 +266,80 @@ function Dashboard() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gray-800/50 border border-white/10 rounded-xl p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <Server className="w-8 h-8 text-blue-400" />
-                <span className="text-2xl font-bold text-white">{stats.totalWorkspaces}</span>
-              </div>
-              <h3 className="text-gray-400 font-medium">Total Workspaces</h3>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-green-400 text-sm flex items-center gap-1">
-                  <TrendingUp className="w-4 h-4" />
-                  +12%
-                </span>
-                <span className="text-gray-500 text-sm">vs last month</span>
-              </div>
+              <Card variant="glass" hover="lift">
+                <div className="flex items-center justify-between mb-4">
+                  <Server className="w-8 h-8 text-primary-400" />
+                  <span className="text-2xl font-bold text-white">{stats.totalWorkspaces}</span>
+                </div>
+                <h3 className="text-neutral-400 font-medium">Total Workspaces</h3>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge variant="success" size="sm">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    +12%
+                  </Badge>
+                  <span className="text-neutral-500 text-sm">vs last month</span>
+                </div>
+              </Card>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-gray-800/50 border border-white/10 rounded-xl p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <Activity className="w-8 h-8 text-green-400" />
-                <span className="text-2xl font-bold text-white">{stats.activeWorkspaces}</span>
-              </div>
-              <h3 className="text-gray-400 font-medium">Active Workspaces</h3>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-green-400 text-sm">
-                  {stats.activeWorkspaces} / {stats.totalWorkspaces} Running
-                </span>
-              </div>
+              <Card variant="glass" hover="lift">
+                <div className="flex items-center justify-between mb-4">
+                  <Activity className="w-8 h-8 text-green-400" />
+                  <span className="text-2xl font-bold text-white">{stats.activeWorkspaces}</span>
+                </div>
+                <h3 className="text-neutral-400 font-medium">Active Workspaces</h3>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-green-400 text-sm">
+                    {stats.activeWorkspaces} / {stats.totalWorkspaces} Running
+                  </span>
+                </div>
+              </Card>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-gray-800/50 border border-white/10 rounded-xl p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <HardDrive className="w-8 h-8 text-purple-400" />
-                <span className="text-2xl font-bold text-white">{stats.usedStorage}GB</span>
-              </div>
-              <h3 className="text-gray-400 font-medium">Storage Used</h3>
-              <div className="w-full bg-gray-700 rounded-full h-2 mt-3">
-                <div
-                  className="bg-purple-400 h-2 rounded-full transition-all"
-                  style={{ width: `${(stats.usedStorage / stats.totalStorage) * 100}%` }}
-                />
-              </div>
-              <span className="text-gray-500 text-sm mt-1">
-                {stats.usedStorage}GB / {stats.totalStorage}GB
-              </span>
+              <Card variant="glass" hover="lift">
+                <div className="flex items-center justify-between mb-4">
+                  <HardDrive className="w-8 h-8 text-accent-400" />
+                  <span className="text-2xl font-bold text-white">{stats.usedStorage}GB</span>
+                </div>
+                <h3 className="text-neutral-400 font-medium">Storage Used</h3>
+                <div className="w-full bg-neutral-800 rounded-full h-2 mt-3">
+                  <div
+                    className="bg-gradient-to-r from-accent-400 to-accent-600 h-2 rounded-full transition-all"
+                    style={{ width: `${(stats.usedStorage / stats.totalStorage) * 100}%` }}
+                  />
+                </div>
+                <span className="text-neutral-500 text-sm mt-1">
+                  {stats.usedStorage}GB / {stats.totalStorage}GB
+                </span>
+              </Card>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-gray-800/50 border border-white/10 rounded-xl p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <Cpu className="w-8 h-8 text-orange-400" />
-                <span className="text-2xl font-bold text-white">{stats.cpuUsage}%</span>
-              </div>
-              <h3 className="text-gray-400 font-medium">CPU Usage</h3>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-orange-400 text-sm">Average across workspaces</span>
-              </div>
+              <Card variant="glass" hover="lift">
+                <div className="flex items-center justify-between mb-4">
+                  <Cpu className="w-8 h-8 text-orange-400" />
+                  <span className="text-2xl font-bold text-white">{stats.cpuUsage}%</span>
+                </div>
+                <h3 className="text-neutral-400 font-medium">CPU Usage</h3>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-orange-400 text-sm">Average across workspaces</span>
+                </div>
+              </Card>
             </motion.div>
           </div>
 
@@ -336,46 +350,39 @@ function Dashboard() {
               
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
                   <input
                     type="text"
                     placeholder="Search workspaces..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 bg-gray-800/50 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-400"
+                    className="pl-10 pr-4 py-2 bg-neutral-900/50 border border-white/10 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:border-primary-400 transition-all"
                   />
                 </div>
                 
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
+                    variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                    size="icon"
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-lg transition-colors ${
-                      viewMode === 'grid'
-                        ? 'bg-blue-500/20 text-blue-400'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    }`}
                   >
                     <Grid className="w-5 h-5" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                    size="icon"
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-lg transition-colors ${
-                      viewMode === 'list'
-                        ? 'bg-blue-500/20 text-blue-400'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                    }`}
                   >
                     <List className="w-5 h-5" />
-                  </button>
+                  </Button>
                 </div>
 
-                <Link
-                  href="/workspace/new"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                <Button
+                  onClick={() => router.push('/workspace/new')}
+                  leftIcon={<Plus className="w-5 h-5" />}
                 >
-                  <Plus className="w-5 h-5" />
                   New Workspace
-                </Link>
+                </Button>
               </div>
             </div>
 
@@ -387,89 +394,20 @@ function Dashboard() {
                     key={workspace.id}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-gray-800/50 border border-white/10 rounded-xl p-6 hover:bg-gray-800/70 transition-all cursor-pointer"
                   >
-                    <Link href={`/workspace/${workspace.id}`}>
-                      <div className="flex items-start justify-between mb-4">
-                        <Terminal className="w-8 h-8 text-blue-400" />
-                        <div className={`px-2 py-1 rounded-full text-xs ${statusColors[workspace.status]}`}>
-                          {workspace.status}
+                    <Card variant="gradient" hover="scale" gradient={tierGradients[workspace.tier]}>
+                      <Link href={`/workspace/${workspace.id}`}>
+                        <div className="flex items-start justify-between mb-4">
+                          <Terminal className="w-8 h-8 text-white" />
+                          <Badge variant={workspace.status === 'running' ? 'success' : 'default'} size="sm">
+                            {workspace.status}
+                          </Badge>
                         </div>
-                      </div>
-                      
-                      <h3 className="text-lg font-semibold text-white mb-2">{workspace.name}</h3>
-                      <p className="text-gray-400 text-sm mb-4">{workspace.description}</p>
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Cpu className="w-4 h-4" />
-                          <span>{workspace.resources.cpu} vCPU</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <HardDrive className="w-4 h-4" />
-                          <span>{workspace.resources.memory}GB</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Database className="w-4 h-4" />
-                          <span>{workspace.resources.storage}GB</span>
-                        </div>
-                      </div>
-                      
-                      {workspace.metrics && (
-                        <div className="mt-4 pt-4 border-t border-white/10">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-400">Resource Usage</span>
-                            <span className="text-gray-400">
-                              {Math.round((workspace.metrics.cpuUsage + workspace.metrics.memoryUsage) / 2)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-700 rounded-full h-1.5 mt-2">
-                            <div
-                              className="bg-gradient-to-r from-blue-400 to-purple-400 h-1.5 rounded-full transition-all"
-                              style={{ 
-                                width: `${Math.round((workspace.metrics.cpuUsage + workspace.metrics.memoryUsage) / 2)}%` 
-                              }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </Link>
-                  </motion.div>
-                ))}
-                
-                {/* Create New Workspace Card */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-gray-800/50 border border-white/10 border-dashed rounded-xl p-6 hover:bg-gray-800/70 transition-all cursor-pointer flex items-center justify-center"
-                >
-                  <Link href="/workspace/new" className="text-center">
-                    <Plus className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                    <h3 className="text-lg font-medium text-gray-400">Create New Workspace</h3>
-                    <p className="text-sm text-gray-500 mt-1">Deploy a new development environment</p>
-                  </Link>
-                </motion.div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredWorkspaces.map(workspace => (
-                  <motion.div
-                    key={workspace.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="bg-gray-800/50 border border-white/10 rounded-xl p-4 hover:bg-gray-800/70 transition-all"
-                  >
-                    <Link href={`/workspace/${workspace.id}`} className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <Terminal className="w-10 h-10 text-blue-400" />
-                        <div>
-                          <h3 className="text-lg font-semibold text-white">{workspace.name}</h3>
-                          <p className="text-gray-400 text-sm">{workspace.description}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        
+                        <h3 className="text-lg font-semibold text-white mb-2">{workspace.name}</h3>
+                        <p className="text-neutral-300 text-sm mb-4">{workspace.description}</p>
+                        
+                        <div className="flex items-center gap-4 text-sm text-neutral-400">
                           <div className="flex items-center gap-1">
                             <Cpu className="w-4 h-4" />
                             <span>{workspace.resources.cpu} vCPU</span>
@@ -484,15 +422,87 @@ function Dashboard() {
                           </div>
                         </div>
                         
-                        <div className={`px-3 py-1.5 rounded-full text-sm ${statusColors[workspace.status]}`}>
-                          {workspace.status}
+                        {workspace.metrics && (
+                          <div className="mt-4 pt-4 border-t border-white/10">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-neutral-400">Resource Usage</span>
+                              <span className="text-neutral-400">
+                                {Math.round((workspace.metrics.cpuUsage + workspace.metrics.memoryUsage) / 2)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-black/20 rounded-full h-1.5 mt-2">
+                              <div
+                                className="bg-gradient-to-r from-primary-400 to-accent-400 h-1.5 rounded-full transition-all"
+                                style={{ 
+                                  width: `${Math.round((workspace.metrics.cpuUsage + workspace.metrics.memoryUsage) / 2)}%` 
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </Link>
+                    </Card>
+                  </motion.div>
+                ))}
+                
+                {/* Create New Workspace Card */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                >
+                  <Card variant="glass" hover="scale" className="h-full">
+                    <Link href="/workspace/new" className="h-full flex flex-col items-center justify-center text-center">
+                      <Plus className="w-12 h-12 text-neutral-400 mb-3" />
+                      <h3 className="text-lg font-medium text-neutral-400">Create New Workspace</h3>
+                      <p className="text-sm text-neutral-500 mt-1">Deploy a new development environment</p>
+                    </Link>
+                  </Card>
+                </motion.div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredWorkspaces.map(workspace => (
+                  <motion.div
+                    key={workspace.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    <Card variant="glass" hover="lift">
+                      <Link href={`/workspace/${workspace.id}`} className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <Terminal className="w-10 h-10 text-primary-400" />
+                          <div>
+                            <h3 className="text-lg font-semibold text-white">{workspace.name}</h3>
+                            <p className="text-neutral-400 text-sm">{workspace.description}</p>
+                          </div>
                         </div>
                         
-                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                          <MoreVertical className="w-5 h-5 text-gray-400" />
-                        </button>
-                      </div>
-                    </Link>
+                        <div className="flex items-center gap-6">
+                          <div className="flex items-center gap-4 text-sm text-neutral-500">
+                            <div className="flex items-center gap-1">
+                              <Cpu className="w-4 h-4" />
+                              <span>{workspace.resources.cpu} vCPU</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <HardDrive className="w-4 h-4" />
+                              <span>{workspace.resources.memory}GB</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Database className="w-4 h-4" />
+                              <span>{workspace.resources.storage}GB</span>
+                            </div>
+                          </div>
+                          
+                          <Badge variant={workspace.status === 'running' ? 'success' : 'default'}>
+                            {workspace.status}
+                          </Badge>
+                          
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="w-5 h-5" />
+                          </Button>
+                        </div>
+                      </Link>
+                    </Card>
                   </motion.div>
                 ))}
               </div>
@@ -501,44 +511,44 @@ function Dashboard() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div className="bg-gray-800/50 border border-white/10 rounded-xl p-6">
+            <Card variant="glass" hover="lift">
               <div className="flex items-center gap-4 mb-4">
-                <Brain className="w-10 h-10 text-purple-400" />
+                <Brain className="w-10 h-10 text-accent-400" />
                 <div>
                   <h3 className="text-lg font-semibold text-white">AI Agents</h3>
-                  <p className="text-gray-400 text-sm">Manage your Claude agents</p>
+                  <p className="text-neutral-400 text-sm">Manage your Claude agents</p>
                 </div>
               </div>
-              <Link href="/agents" className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1">
+              <Link href="/agents" className="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1">
                 View Agents <ArrowUpRight className="w-4 h-4" />
               </Link>
-            </div>
+            </Card>
             
-            <div className="bg-gray-800/50 border border-white/10 rounded-xl p-6">
+            <Card variant="glass" hover="lift">
               <div className="flex items-center gap-4 mb-4">
                 <Shield className="w-10 h-10 text-green-400" />
                 <div>
                   <h3 className="text-lg font-semibold text-white">Security</h3>
-                  <p className="text-gray-400 text-sm">Monitor your workspace security</p>
+                  <p className="text-neutral-400 text-sm">Monitor your workspace security</p>
                 </div>
               </div>
-              <Link href="/security" className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1">
+              <Link href="/security" className="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1">
                 Security Settings <ArrowUpRight className="w-4 h-4" />
               </Link>
-            </div>
+            </Card>
             
-            <div className="bg-gray-800/50 border border-white/10 rounded-xl p-6">
+            <Card variant="glass" hover="lift">
               <div className="flex items-center gap-4 mb-4">
                 <CreditCard className="w-10 h-10 text-orange-400" />
                 <div>
                   <h3 className="text-lg font-semibold text-white">Billing</h3>
-                  <p className="text-gray-400 text-sm">Manage subscription & usage</p>
+                  <p className="text-neutral-400 text-sm">Manage subscription & usage</p>
                 </div>
               </div>
-              <Link href="/billing" className="text-blue-400 hover:text-blue-300 text-sm flex items-center gap-1">
+              <Link href="/billing" className="text-primary-400 hover:text-primary-300 text-sm flex items-center gap-1">
                 View Billing <ArrowUpRight className="w-4 h-4" />
               </Link>
-            </div>
+            </Card>
           </div>
         </main>
       </div>

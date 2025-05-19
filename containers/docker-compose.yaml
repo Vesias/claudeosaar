@@ -40,13 +40,16 @@ services:
 
   # PostgreSQL Database
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     environment:
       - POSTGRES_DB=claudeosaar
       - POSTGRES_USER=claude
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - ../volumes/postgres:/var/lib/postgresql/data
+      - ../migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
     networks:
       - claude-net
 
